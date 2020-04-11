@@ -25,4 +25,4 @@ an issue.
 
 # LICENSE
 
-The `gophers.dev/cmds/fields` module is open source under the [MIT](LICENSE) license.
+The `gophers.dev/cmds/envy` module is open source under the [MIT](LICENSE) license.
