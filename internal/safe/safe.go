@@ -34,13 +34,17 @@ func Path(w output.Writer) (string, error) {
 	return filepath.Join(dir, filename), nil
 }
 
+// Box represents the persistent storage of encrypted secrets.
+//
+// todo: keep track of envy storage schema version, in case a newer version of
+//  envy needs to modify the way secrets are stored
 type Box struct {
 	database *bbolt.DB
 }
 
 type Namespace struct {
-	Name    string                  `json:"-"`
-	Content map[string]secrets.Text `json:"content"`
+	Name    string
+	Content map[string]secrets.Text
 }
 
 func New(file string) (*Box, error) {
@@ -50,7 +54,7 @@ func New(file string) (*Box, error) {
 
 	db, err := bbolt.Open(file, 0600, options)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "unable to open persistent storage")
 	}
 
 	return &Box{
@@ -81,7 +85,37 @@ func put(bkt *bbolt.Bucket, ns *Namespace) error {
 	return nil
 }
 
+func wipe(bkt *bbolt.Bucket, namespace string) error {
+	return bkt.ForEach(func(k, _ []byte) error {
+		return bkt.Delete(k)
+	})
+}
+
+// Purge will delete the namespace, including any existing content.
+func (b *Box) Purge(namespace string) error {
+	return b.database.Update(func(tx *bbolt.Tx) error {
+		return tx.DeleteBucket([]byte(namespace))
+	})
+}
+
+// Set will set the contents of ns, eliminating or overwriting anything that
+// existed in that namespace before.
 func (b *Box) Set(ns *Namespace) error {
+	return b.database.Update(func(tx *bbolt.Tx) error {
+		bkt, err := bucket(true, tx, ns.Name)
+		if err != nil {
+			return err
+		}
+		if err := wipe(bkt, ns.Name); err != nil {
+			return err
+		}
+		return put(bkt, ns)
+	})
+}
+
+// Update will set the contents of ns, overwriting anything that existed in that
+// namespace before. Pre-existing non-overlapping values will remain.
+func (b *Box) Update(ns *Namespace) error {
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(true, tx, ns.Name)
 		if err != nil {
@@ -91,6 +125,7 @@ func (b *Box) Set(ns *Namespace) error {
 	})
 }
 
+// Get will return the contents of namespace.
 func (b *Box) Get(namespace string) (*Namespace, error) {
 	content := make(map[string]secrets.Text)
 
