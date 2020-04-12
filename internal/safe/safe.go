@@ -7,8 +7,6 @@ import (
 
 	"github.com/pkg/errors"
 	"go.etcd.io/bbolt"
-	"gophers.dev/cmds/envy/internal/output"
-	"gophers.dev/pkgs/secrets"
 )
 
 const (
@@ -20,7 +18,7 @@ const (
 //
 // For now this defers to 'os.UserConfigDir/envy/envoy.safe', but should be
 // made configurable later on.
-func Path(w output.Writer) (string, error) {
+func Path() (string, error) {
 	configs, err := os.UserConfigDir()
 	if err != nil {
 		return "", errors.Wrap(err, "no user config directory")
@@ -34,20 +32,18 @@ func Path(w output.Writer) (string, error) {
 	return filepath.Join(dir, filename), nil
 }
 
+type Box interface {
+}
+
 // Box represents the persistent storage of encrypted secrets.
 //
 // todo: keep track of envy storage schema version, in case a newer version of
 //  envy needs to modify the way secrets are stored
-type Box struct {
+type box struct {
 	database *bbolt.DB
 }
 
-type Namespace struct {
-	Name    string
-	Content map[string]secrets.Text
-}
-
-func New(file string) (*Box, error) {
+func New(file string) (Box, error) {
 	options := &bbolt.Options{
 		Timeout: 1 * time.Second,
 	}
@@ -57,12 +53,12 @@ func New(file string) (*Box, error) {
 		return nil, errors.Wrap(err, "unable to open persistent storage")
 	}
 
-	return &Box{
+	return &box{
 		database: db,
 	}, nil
 }
 
-func (b *Box) Close() error {
+func (b *box) Close() error {
 	return b.database.Close()
 }
 
@@ -78,7 +74,7 @@ func bucket(create bool, tx *bbolt.Tx, namespace string) (*bbolt.Bucket, error) 
 
 func put(bkt *bbolt.Bucket, ns *Namespace) error {
 	for k, v := range ns.Content {
-		if err := bkt.Put([]byte(k), []byte(v.Secret())); err != nil {
+		if err := bkt.Put([]byte(k), []byte(v)); err != nil {
 			return err
 		}
 	}
@@ -92,7 +88,7 @@ func wipe(bkt *bbolt.Bucket, namespace string) error {
 }
 
 // Purge will delete the namespace, including any existing content.
-func (b *Box) Purge(namespace string) error {
+func (b *box) Purge(namespace string) error {
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		return tx.DeleteBucket([]byte(namespace))
 	})
@@ -100,7 +96,7 @@ func (b *Box) Purge(namespace string) error {
 
 // Set will set the contents of ns, eliminating or overwriting anything that
 // existed in that namespace before.
-func (b *Box) Set(ns *Namespace) error {
+func (b *box) Set(ns *Namespace) error {
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(true, tx, ns.Name)
 		if err != nil {
@@ -115,7 +111,7 @@ func (b *Box) Set(ns *Namespace) error {
 
 // Update will set the contents of ns, overwriting anything that existed in that
 // namespace before. Pre-existing non-overlapping values will remain.
-func (b *Box) Update(ns *Namespace) error {
+func (b *box) Update(ns *Namespace) error {
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(true, tx, ns.Name)
 		if err != nil {
@@ -126,8 +122,8 @@ func (b *Box) Update(ns *Namespace) error {
 }
 
 // Get will return the contents of namespace.
-func (b *Box) Get(namespace string) (*Namespace, error) {
-	content := make(map[string]secrets.Text)
+func (b *box) Get(namespace string) (*Namespace, error) {
+	content := make(map[string]Encrypted)
 
 	if err := b.database.View(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(false, tx, namespace)
@@ -136,7 +132,7 @@ func (b *Box) Get(namespace string) (*Namespace, error) {
 		}
 
 		if err := bkt.ForEach(func(k []byte, v []byte) error {
-			content[string(k)] = secrets.New(string(v))
+			content[string(k)] = Encrypted(v)
 			return nil
 		}); err != nil {
 			return err

@@ -8,5 +8,6 @@ require (
 	github.com/stretchr/testify v1.4.0
 	go.etcd.io/bbolt v1.3.4
 	gophers.dev/pkgs/ignore v0.2.0
+	gophers.dev/pkgs/regexplus v0.2.0
 	gophers.dev/pkgs/secrets v0.1.0
 )
