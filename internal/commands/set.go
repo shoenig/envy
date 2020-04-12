@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/output"
+	"gophers.dev/cmds/envy/internal/setup"
 )
 
 const (
@@ -14,9 +15,9 @@ const (
 	setCmdUsage    = "set [namespace] [env=value,...]"
 )
 
-func NewSetCmd(w output.Writer) subcommands.Command {
+func NewSetCmd(t *setup.Tool) subcommands.Command {
 	return &setCmd{
-		writer: w,
+		writer: t.Writer,
 	}
 }
 

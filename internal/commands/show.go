@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/output"
+	"gophers.dev/cmds/envy/internal/setup"
 )
 
 const (
@@ -14,9 +15,9 @@ const (
 	showCmdUsage    = "show [namespace]"
 )
 
-func NewShowCmd(w output.Writer) subcommands.Command {
+func NewShowCmd(t *setup.Tool) subcommands.Command {
 	return &showCmd{
-		writer: w,
+		writer: t.Writer,
 	}
 }
 

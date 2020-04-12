@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/output"
+	"gophers.dev/cmds/envy/internal/setup"
 )
 
 const (
@@ -14,9 +15,9 @@ const (
 	listCmdUsage    = "list"
 )
 
-func NewListCmd(w output.Writer) subcommands.Command {
+func NewListCmd(t *setup.Tool) subcommands.Command {
 	return &listCmd{
-		writer: w,
+		writer: t.Writer,
 	}
 }
 

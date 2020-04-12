@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/output"
+	"gophers.dev/cmds/envy/internal/setup"
 )
 
 const (
@@ -14,9 +15,9 @@ const (
 	purgeCmdUsage    = "purge [namespace]"
 )
 
-func NewPurgeCmd(w output.Writer) subcommands.Command {
+func NewPurgeCmd(t *setup.Tool) subcommands.Command {
 	return &purgeCmd{
-		writer: w,
+		writer: t.Writer,
 	}
 }
 
