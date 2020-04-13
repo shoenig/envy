@@ -33,10 +33,12 @@ func TestCommon_args(t *testing.T) {
 	})
 
 	t.Run("four arguments", func(t *testing.T) {
-		verb, ns, argv, err := extract(wrap([]string{"a", "b", "c", "d"}))
+		verb, ns, secrets, err := extract(wrap([]string{"a", "b", "c", "d"}))
 		require.Equal(t, "a", verb)
 		require.Equal(t, "b", ns)
-		require.Equal(t, []string{"c", "d"}, argv)
+		require.Equal(t, 2, len(secrets))
+		require.Equal(t, "c", secrets[0].Secret())
+		require.Equal(t, "d", secrets[1].Secret())
 		require.NoError(t, err)
 	})
 }

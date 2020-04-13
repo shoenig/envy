@@ -1,15 +1,13 @@
 package keyring
 
 import (
-	"fmt"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 
 	"gophers.dev/cmds/envy/internal/safe"
 	"gophers.dev/pkgs/secrets"
 )
-
-func Init(name string) secrets.Text {
-	return secrets.New("abc123")
-}
 
 type Ring interface {
 	Encrypt(secrets.Text) safe.Encrypted
@@ -27,13 +25,40 @@ func New(key secrets.Text) Ring {
 }
 
 func (r *ring) Encrypt(s secrets.Text) safe.Encrypted {
-	fmt.Printf("encrypt %s\n", s.Secret())
-	// todo
-	return safe.Encrypted(s.Secret())
+	bCipher, err := aes.NewCipher([]byte(trim(r.key.Secret())))
+	if err != nil {
+		panic(err)
+	}
+
+	gcm, err := cipher.NewGCM(bCipher)
+	if err != nil {
+		panic(err)
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := rand.Read(nonce); err != nil {
+		panic(err)
+	}
+
+	return safe.Encrypted(gcm.Seal(nonce, nonce, []byte(s.Secret()), nil))
 }
 
 func (r *ring) Decrypt(s safe.Encrypted) secrets.Text {
-	fmt.Printf("decrypt %s\n", s)
-	// todo
-	return secrets.New(string(s))
+	bCipher, err := aes.NewCipher([]byte(trim(r.key.Secret())))
+	if err != nil {
+		panic(err)
+	}
+
+	gcm, err := cipher.NewGCM(bCipher)
+	if err != nil {
+		panic(err)
+	}
+
+	nonce, cText := s[:gcm.NonceSize()], s[gcm.NonceSize():]
+	plainText, err := gcm.Open(nil, nonce, cText, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return secrets.New(string(plainText))
 }

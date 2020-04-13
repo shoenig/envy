@@ -1,6 +1,6 @@
 package safe
 
-type Encrypted string
+type Encrypted []byte
 
 type Namespace struct {
 	Name    string

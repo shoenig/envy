@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	envyKeyringName = "envy.secure.environment.variables.tool"
+	envyKeyringName = "envy.secure.env.vars"
 )
 
 type Tool struct {

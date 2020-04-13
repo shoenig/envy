@@ -32,13 +32,15 @@ func Path() (string, error) {
 	return filepath.Join(dir, filename), nil
 }
 
+// A Box represents the persistent storage of encrypted secrets.
 type Box interface {
+	Set(*Namespace) error
+	Purge(string) error
+	Update(*Namespace) error
+	Get(string) (*Namespace, error)
+	List() ([]string, error)
 }
 
-// Box represents the persistent storage of encrypted secrets.
-//
-// todo: keep track of envy storage schema version, in case a newer version of
-//  envy needs to modify the way secrets are stored
 type box struct {
 	database *bbolt.DB
 }
@@ -147,4 +149,18 @@ func (b *box) Get(namespace string) (*Namespace, error) {
 		Name:    namespace,
 		Content: content,
 	}, nil
+}
+
+// List will return a list of namespaces that have been created.
+func (b *box) List() ([]string, error) {
+	var namespaces []string
+	if err := b.database.View(func(tx *bbolt.Tx) error {
+		return tx.ForEach(func(ns []byte, _ *bbolt.Bucket) error {
+			namespaces = append(namespaces, string(ns))
+			return nil
+		})
+	}); err != nil {
+		return nil, err
+	}
+	return namespaces, nil
 }

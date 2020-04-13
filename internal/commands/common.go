@@ -79,7 +79,7 @@ func (e *extractor) encryptEnvVar(kv secrets.Text) (string, safe.Encrypted, erro
 		s := e.encrypt(secrets.New(m["secret"]))
 		return m["key"], s, nil
 	}
-	return "", "", errors.New("malformed environment variable pair")
+	return "", nil, errors.New("malformed environment variable pair")
 }
 
 func (e *extractor) encrypt(s secrets.Text) safe.Encrypted {
