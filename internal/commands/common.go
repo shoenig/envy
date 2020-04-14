@@ -1,7 +1,9 @@
 package commands
 
 import (
+	"flag"
 	"regexp"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"gophers.dev/cmds/envy/internal/keyring"
@@ -11,7 +13,7 @@ import (
 )
 
 var (
-	argRe = regexp.MustCompile(`(?P<key>[\w]+)=(?P<secret>[\w]+)`)
+	argRe = regexp.MustCompile(`(?P<key>[\w]+)=(?P<secret>[.]+)`)
 )
 
 type Extractor interface {
@@ -84,4 +86,12 @@ func (e *extractor) encryptEnvVar(kv secrets.Text) (string, safe.Encrypted, erro
 
 func (e *extractor) encrypt(s secrets.Text) safe.Encrypted {
 	return e.ring.Encrypt(s)
+}
+
+func fsBool(fs *flag.FlagSet, name string) bool {
+	b, err := strconv.ParseBool(fs.Lookup(name).Value.String())
+	if err != nil {
+		return false
+	}
+	return b
 }

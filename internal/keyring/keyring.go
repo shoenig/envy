@@ -15,17 +15,21 @@ type Ring interface {
 }
 
 type ring struct {
-	key secrets.Text
+	key secrets.Bytes
 }
 
 func New(key secrets.Text) Ring {
 	return &ring{
-		key: key,
+		key: uuidToLen32(key),
 	}
 }
 
+func uuidToLen32(id secrets.Text) secrets.Bytes {
+	return secrets.NewBytes([]byte(trim(id.Secret())))
+}
+
 func (r *ring) Encrypt(s secrets.Text) safe.Encrypted {
-	bCipher, err := aes.NewCipher([]byte(trim(r.key.Secret())))
+	bCipher, err := aes.NewCipher(r.key.Secret())
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +48,7 @@ func (r *ring) Encrypt(s secrets.Text) safe.Encrypted {
 }
 
 func (r *ring) Decrypt(s safe.Encrypted) secrets.Text {
-	bCipher, err := aes.NewCipher([]byte(trim(r.key.Secret())))
+	bCipher, err := aes.NewCipher(r.key.Secret())
 	if err != nil {
 		panic(err)
 	}

@@ -5,24 +5,32 @@ import (
 	"flag"
 
 	"github.com/google/subcommands"
+	"gophers.dev/cmds/envy/internal/keyring"
 	"gophers.dev/cmds/envy/internal/output"
+	"gophers.dev/cmds/envy/internal/safe"
 	"gophers.dev/cmds/envy/internal/setup"
 )
 
 const (
 	showCmdName     = "show"
 	showCmdSynopsis = "Show environment variable(s) in namespace."
-	showCmdUsage    = "show [namespace]"
+	showCmdUsage    = "show [--decrypt] [namespace]"
+
+	flagDecrypt = "decrypt"
 )
 
 func NewShowCmd(t *setup.Tool) subcommands.Command {
 	return &showCmd{
 		writer: t.Writer,
+		ring:   t.Ring,
+		box:    t.Box,
 	}
 }
 
 type showCmd struct {
 	writer output.Writer
+	ring   keyring.Ring
+	box    safe.Box
 }
 
 func (sc showCmd) Name() string {
@@ -37,11 +45,32 @@ func (sc showCmd) Usage() string {
 	return showCmdUsage
 }
 
-func (sc showCmd) SetFlags(set *flag.FlagSet) {
-	// no flags when showing environment variables of namespace
+func (sc showCmd) SetFlags(fs *flag.FlagSet) {
+	_ = fs.Bool(flagDecrypt, false, "decrypt will print secrets")
 }
 
-func (sc showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
-	sc.writer.Directf("the show command!")
+func (sc showCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	decrypt := fsBool(fs, flagDecrypt)
+
+	if len(fs.Args()) != 1 {
+		sc.writer.Errorf("expected only namespace argument")
+		return subcommands.ExitUsageError
+	}
+
+	ns, err := sc.box.Get(fs.Arg(0))
+	if err != nil {
+		sc.writer.Errorf("could not retrieve namespace: %v", err)
+		return subcommands.ExitFailure
+	}
+
+	for key, value := range ns.Content {
+		if decrypt {
+			secret := sc.ring.Decrypt(value)
+			sc.writer.Directf("%s=%s", key, secret.Secret())
+		} else {
+			sc.writer.Directf("%s", key)
+		}
+	}
+
 	return subcommands.ExitSuccess
 }
