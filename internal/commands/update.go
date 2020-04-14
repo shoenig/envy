@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/output"
+	"gophers.dev/cmds/envy/internal/safe"
 	"gophers.dev/cmds/envy/internal/setup"
 )
 
@@ -18,11 +19,15 @@ const (
 func NewUpdateCmd(t *setup.Tool) subcommands.Command {
 	return &updateCmd{
 		writer: t.Writer,
+		ex:     newExtractor(t.Ring),
+		box:    t.Box,
 	}
 }
 
 type updateCmd struct {
 	writer output.Writer
+	ex     Extractor
+	box    safe.Box
 }
 
 func (uc updateCmd) Name() string {
@@ -42,6 +47,17 @@ func (uc updateCmd) SetFlags(set *flag.FlagSet) {
 }
 
 func (uc updateCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
-	uc.writer.Directf("the add command!")
+	ns, err := uc.ex.Namespace(args)
+	if err != nil {
+		uc.writer.Errorf("")
+		return subcommands.ExitUsageError
+	}
+
+	if err := uc.box.Update(ns); err != nil {
+		uc.writer.Errorf("unable to update namespace: %v", err)
+		return subcommands.ExitFailure
+	}
+
+	uc.writer.Directf("updated %d items in %s", len(ns.Content), ns.Name)
 	return subcommands.ExitSuccess
 }

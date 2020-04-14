@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	argRe = regexp.MustCompile(`(?P<key>[\w]+)=(?P<secret>[.]+)`)
+	argRe = regexp.MustCompile(`(?P<key>[\w]+)=(?P<secret>.+)`)
 )
 
 type Extractor interface {

@@ -56,7 +56,7 @@ func (sc setCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface
 	}
 
 	if err := sc.box.Set(ns); err != nil {
-		sc.writer.Errorf("unable to store data: %v", err)
+		sc.writer.Errorf("unable to update namespace: %v", err)
 		return subcommands.ExitFailure
 	}
 
