@@ -49,7 +49,12 @@ func (uc updateCmd) SetFlags(set *flag.FlagSet) {
 func (uc updateCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
 	ns, err := uc.ex.Namespace(args)
 	if err != nil {
-		uc.writer.Errorf("")
+		uc.writer.Errorf("unable to parse args: %v", err)
+		return subcommands.ExitUsageError
+	}
+
+	if len(ns.Content) == 0 {
+		uc.writer.Errorf("use 'purge' to remove namespace")
 		return subcommands.ExitUsageError
 	}
 
@@ -58,6 +63,6 @@ func (uc updateCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		return subcommands.ExitFailure
 	}
 
-	uc.writer.Directf("updated %d items in %s", len(ns.Content), ns.Name)
+	uc.writer.Directf("updated %d items in %q", len(ns.Content), ns.Name)
 	return subcommands.ExitSuccess
 }

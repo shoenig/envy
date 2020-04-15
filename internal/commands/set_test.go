@@ -42,6 +42,9 @@ func TestSetCmd_Execute(t *testing.T) {
 
 	a, b, w := newWriter()
 
+	ring.EncryptMock.When(secrets.New("abc123")).Then(safe.Encrypted{8, 8, 8, 8, 8, 8})
+	ring.EncryptMock.When(secrets.New("1234")).Then(safe.Encrypted{9, 9, 9, 9})
+
 	box.SetMock.Expect(&safe.Namespace{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
@@ -49,9 +52,6 @@ func TestSetCmd_Execute(t *testing.T) {
 			"bar": safe.Encrypted{9, 9, 9, 9},
 		},
 	}).Return(nil)
-
-	ring.EncryptMock.When(secrets.New("abc123")).Then(safe.Encrypted{8, 8, 8, 8, 8, 8})
-	ring.EncryptMock.When(secrets.New("1234")).Then(safe.Encrypted{9, 9, 9, 9})
 
 	pc := &setCmd{
 		writer: w,
