@@ -45,22 +45,18 @@ func (pc purgeCmd) SetFlags(_ *flag.FlagSet) {
 }
 
 func (pc purgeCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
-	if len(fs.Args()) != 1 {
-		pc.writer.Errorf("expected only namespace argument")
+	if fs.NArg() != 1 {
+		pc.writer.Errorf("expected one namespace argument")
 		return subcommands.ExitUsageError
 	}
 
-	ns, err := pc.box.Get(fs.Arg(0))
-	if err != nil {
-		pc.writer.Errorf("could not retrieve namespace: %v", err)
-		return subcommands.ExitFailure
-	}
+	namespace := fs.Arg(0)
 
-	if err := pc.box.Purge(ns.Name); err != nil {
+	if err := pc.box.Purge(namespace); err != nil {
 		pc.writer.Errorf("could not purge namespace: %v", err)
 		return subcommands.ExitFailure
 	}
 
-	pc.writer.Directf("purged %s", ns.Name)
+	pc.writer.Directf("purged namespace %q", namespace)
 	return subcommands.ExitSuccess
 }

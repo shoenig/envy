@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	argRe = regexp.MustCompile(`(?P<key>[\w]+)=(?P<secret>.+)`)
+	argRe       = regexp.MustCompile(`^(?P<key>[\w]+)=(?P<secret>.+)$`)
+	namespaceRe = regexp.MustCompile(`^[\w]+$`)
 )
 
 type Extractor interface {
@@ -59,6 +60,10 @@ func extract(args []interface{}) (string, string, []secrets.Text, error) {
 
 	command := arguments[0].Secret()
 	namespace := arguments[1].Secret()
+
+	if !namespaceRe.MatchString(namespace) {
+		return "", "", nil, errors.New("namespace uses non-word characters")
+	}
 
 	return command, namespace, arguments[2:], nil
 }

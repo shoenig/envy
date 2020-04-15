@@ -5,7 +5,6 @@ import (
 	"flag"
 
 	"github.com/google/subcommands"
-	"gophers.dev/cmds/envy/internal/keyring"
 	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/safe"
 	"gophers.dev/cmds/envy/internal/setup"
@@ -28,7 +27,6 @@ func NewSetCmd(t *setup.Tool) subcommands.Command {
 type setCmd struct {
 	writer output.Writer
 	ex     Extractor
-	ring   keyring.Ring
 	box    safe.Box
 }
 
@@ -55,11 +53,16 @@ func (sc setCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface
 		return subcommands.ExitUsageError
 	}
 
+	if len(ns.Content) == 0 {
+		sc.writer.Errorf("use 'purge' to remove namespace")
+		return subcommands.ExitUsageError
+	}
+
 	if err := sc.box.Set(ns); err != nil {
 		sc.writer.Errorf("unable to update namespace: %v", err)
 		return subcommands.ExitFailure
 	}
 
-	sc.writer.Directf("stored %d items in %s", len(ns.Content), ns.Name)
+	sc.writer.Directf("stored %d items in %q", len(ns.Content), ns.Name)
 	return subcommands.ExitSuccess
 }

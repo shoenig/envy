@@ -9,6 +9,9 @@ import (
 	"gophers.dev/pkgs/secrets"
 )
 
+// A Ring is used to encrypt and decrypt secrets.
+//
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Ring -s _mock.go
 type Ring interface {
 	Encrypt(secrets.Text) safe.Encrypted
 	Decrypt(safe.Encrypted) secrets.Text

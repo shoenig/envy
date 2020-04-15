@@ -17,6 +17,6 @@ func TestNamespace_String(t *testing.T) {
 		},
 	}
 	s := ns.String()
-	exp := "(ns1 [foo bar])"
+	exp := "(ns1 [bar foo])"
 	require.Equal(t, exp, s)
 }

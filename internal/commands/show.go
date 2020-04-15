@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"flag"
+	"sort"
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/keyring"
@@ -49,7 +50,7 @@ func (sc showCmd) SetFlags(fs *flag.FlagSet) {
 	_ = fs.Bool(flagDecrypt, false, "decrypt will print secrets")
 }
 
-func (sc showCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+func (sc showCmd) Execute(ctx context.Context, fs *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	decrypt := fsBool(fs, flagDecrypt)
 
 	if len(fs.Args()) != 1 {
@@ -63,8 +64,15 @@ func (sc showCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interfa
 		return subcommands.ExitFailure
 	}
 
-	for key, value := range ns.Content {
+	keys := make([]string, 0, len(ns.Content))
+	for k := range ns.Content {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
 		if decrypt {
+			value := ns.Content[key]
 			secret := sc.ring.Decrypt(value)
 			sc.writer.Directf("%s=%s", key, secret.Secret())
 		} else {
