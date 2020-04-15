@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 
@@ -24,16 +25,20 @@ const (
 
 func NewExecCmd(t *setup.Tool) subcommands.Command {
 	return &execCmd{
-		writer: t.Writer,
-		ring:   t.Ring,
-		box:    t.Box,
+		writer:        t.Writer,
+		ring:          t.Ring,
+		box:           t.Box,
+		execOutputStd: os.Stdout,
+		execOutputErr: os.Stderr,
 	}
 }
 
 type execCmd struct {
-	writer output.Writer
-	ring   keyring.Ring
-	box    safe.Box
+	writer        output.Writer
+	ring          keyring.Ring
+	box           safe.Box
+	execOutputStd io.Writer
+	execOutputErr io.Writer
 }
 
 func (wc execCmd) Name() string {
@@ -79,8 +84,8 @@ func (wc execCmd) newCmd(ns *safe.Namespace, insulate bool, command string, args
 	ctx := context.Background()
 	cmd := exec.CommandContext(ctx, command, args...)
 	cmd.Env = wc.env(ns, envContext(insulate))
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = wc.execOutputStd
+	cmd.Stderr = wc.execOutputErr
 	return cmd
 }
 
