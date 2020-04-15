@@ -1,8 +1,6 @@
 package setup
 
 import (
-	"os"
-
 	"gophers.dev/cmds/envy/internal/keyring"
 	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/safe"
@@ -18,8 +16,8 @@ type Tool struct {
 	Box    safe.Box
 }
 
-func New() *Tool {
-	dbFile, err := safe.Path()
+func New(file string, w output.Writer) *Tool {
+	dbFile, err := safe.Path(file)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +28,7 @@ func New() *Tool {
 	}
 
 	return &Tool{
-		Writer: output.New(os.Stdout, os.Stderr),
+		Writer: w,
 		Ring:   keyring.New(keyring.Init(envyKeyringName)),
 		Box:    box,
 	}

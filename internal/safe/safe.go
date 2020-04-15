@@ -15,10 +15,10 @@ const (
 
 // Path returns the filepath to the state store (boltdb) used by envoy for
 // persisting encrypted secrets.
-//
-// For now this defers to 'os.UserConfigDir/envy/envoy.safe', but should be
-// made configurable later on.
-func Path() (string, error) {
+func Path(dbFile string) (string, error) {
+	if dbFile != "" {
+		return dbFile, nil
+	}
 	configs, err := os.UserConfigDir()
 	if err != nil {
 		return "", errors.Wrap(err, "no user config directory")
@@ -33,6 +33,8 @@ func Path() (string, error) {
 }
 
 // A Box represents the persistent storage of encrypted secrets.
+//
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Box -s _mock.go
 type Box interface {
 	Set(*Namespace) error
 	Purge(string) error

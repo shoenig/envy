@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/subcommands"
 	"gophers.dev/cmds/envy/internal/commands"
+	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/setup"
 )
 
@@ -16,9 +17,13 @@ const (
 )
 
 func main() {
-	tool := setup.New()
+	tool := setup.New(
+		os.Getenv("ENVY_DB_FILE"),
+		output.New(os.Stdout, os.Stderr),
+	)
 
 	fs := flag.NewFlagSet(envyGroup, flag.ContinueOnError)
+
 	subs := subcommands.NewCommander(fs, "envy commands")
 	subs.Register(subs.HelpCommand(), usageGroup)
 	subs.Register(subs.FlagsCommand(), usageGroup)

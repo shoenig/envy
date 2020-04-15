@@ -14,9 +14,17 @@ var _ Box = (*box)(nil)
 func TestSafe_Path(t *testing.T) {
 	t.Parallel()
 
-	p, err := Path()
-	require.NoError(t, err)
-	require.True(t, strings.HasSuffix(p, "/envy/envy.safe"))
+	t.Run("default", func(t *testing.T) {
+		p, err := Path("")
+		require.NoError(t, err)
+		require.True(t, strings.HasSuffix(p, "/envy/envy.safe"))
+	})
+
+	t.Run("non-default", func(t *testing.T) {
+		p, err := Path("/my/custom/path")
+		require.NoError(t, err)
+		require.Equal(t, "/my/custom/path", p)
+	})
 }
 
 func newFile(t *testing.T) string {
