@@ -14,6 +14,8 @@ import (
 )
 
 func TestPurgeCmd_Ops(t *testing.T) {
+	t.Parallel()
+
 	db := newDBFile(t)
 	cleanupFile(t, db)
 
@@ -32,6 +34,8 @@ func TestPurgeCmd_Ops(t *testing.T) {
 }
 
 func TestPurgeCmdExecute(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -55,6 +59,8 @@ func TestPurgeCmdExecute(t *testing.T) {
 }
 
 func TestPurgeCmd_Execute_purgeFails(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	a, b, w := newWriter()
 
@@ -76,6 +82,8 @@ func TestPurgeCmd_Execute_purgeFails(t *testing.T) {
 }
 
 func TestPurgeCmd_Execute_noArg(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -97,6 +105,8 @@ func TestPurgeCmd_Execute_noArg(t *testing.T) {
 }
 
 func TestPurgeCmd_Execute_twoArg(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 

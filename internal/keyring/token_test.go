@@ -22,6 +22,8 @@ func setEnv(t *testing.T, key, value string) string {
 }
 
 func TestInit_user(t *testing.T) {
+	// no parallel, sets environment
+
 	t.Run("default", func(t *testing.T) {
 		prevUser := setEnv(t, "USER", "")
 		defer setEnv(t, "USER", prevUser)
@@ -62,11 +64,15 @@ func isUUID(t *testing.T, id string) {
 }
 
 func TestInit_bootstrap(t *testing.T) {
+	// no parallel, sets environment
+
 	id := bootstrap("envy.name", "alice")
 	isUUID(t, id.Secret())
 }
 
 func TestInit_init(t *testing.T) {
+	// no parallel, sets environment
+
 	prevEnvyUser := setEnv(t, "ENVY_USER", "alice")
 	defer setEnv(t, "ENVY_USER", prevEnvyUser)
 

@@ -16,6 +16,8 @@ import (
 )
 
 func TestUpdateCmd_Ops(t *testing.T) {
+	t.Parallel()
+
 	db := newDBFile(t)
 	cleanupFile(t, db)
 
@@ -34,6 +36,8 @@ func TestUpdateCmd_Ops(t *testing.T) {
 }
 
 func TestUpdateCmd_Execute(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -70,6 +74,8 @@ func TestUpdateCmd_Execute(t *testing.T) {
 }
 
 func TestUpdateCmd_Execute_noArgs(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -95,6 +101,8 @@ func TestUpdateCmd_Execute_noArgs(t *testing.T) {
 }
 
 func TestUpdateCmd_Execute_noNS(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -120,6 +128,8 @@ func TestUpdateCmd_Execute_noNS(t *testing.T) {
 }
 
 func TestUpdateCmd_Execute_ioError(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 

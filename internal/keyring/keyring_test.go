@@ -9,6 +9,8 @@ import (
 )
 
 func TestRing_EncryptDecrypt(t *testing.T) {
+	t.Parallel()
+
 	id, err := uuid.GenerateUUID()
 	require.NoError(t, err)
 

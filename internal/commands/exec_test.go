@@ -16,6 +16,8 @@ import (
 )
 
 func TestExecCmd_Ops(t *testing.T) {
+	t.Parallel()
+
 	db := newDBFile(t)
 	cleanupFile(t, db)
 
@@ -34,6 +36,8 @@ func TestExecCmd_Ops(t *testing.T) {
 }
 
 func TestExecCmd_Execute(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -75,6 +79,8 @@ func TestExecCmd_Execute(t *testing.T) {
 }
 
 func TestExecCmd_Execute_noCommand(t *testing.T) {
+	t.Parallel()
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
