@@ -104,6 +104,30 @@ func TestPurgeCmd_Execute_noArg(t *testing.T) {
 	require.Equal(t, "envy: expected one namespace argument\n", b.String())
 }
 
+func TestPurgeCmd_Execute_badNS(t *testing.T) {
+	t.Parallel()
+
+	box := safe.NewBoxMock(t)
+	defer box.MinimockFinish()
+
+	a, b, w := newWriter()
+
+	pc := &purgeCmd{
+		writer: w,
+		box:    box,
+	}
+
+	// namespace must be valid
+	fs, args := setupFlagSet(t, []string{"foo=bar"})
+	pc.SetFlags(fs)
+	ctx := context.Background()
+	rc := pc.Execute(ctx, fs, args)
+
+	require.Equal(t, subcommands.ExitUsageError, rc)
+	require.Empty(t, a.String())
+	require.Equal(t, "envy: could not purge namespace: namespace uses non-word characters\n", b.String())
+}
+
 func TestPurgeCmd_Execute_twoArg(t *testing.T) {
 	t.Parallel()
 

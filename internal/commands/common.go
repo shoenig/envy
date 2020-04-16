@@ -17,6 +17,13 @@ var (
 	namespaceRe = regexp.MustCompile(`^[-\w]+$`)
 )
 
+func checkName(namespace string) error {
+	if !namespaceRe.MatchString(namespace) {
+		return errors.New("namespace uses non-word characters")
+	}
+	return nil
+}
+
 type Extractor interface {
 	Namespace(args []interface{}) (*safe.Namespace, error)
 }
@@ -61,8 +68,8 @@ func extract(args []interface{}) (string, string, []secrets.Text, error) {
 	command := arguments[0].Secret()
 	namespace := arguments[1].Secret()
 
-	if !namespaceRe.MatchString(namespace) {
-		return "", "", nil, errors.New("namespace uses non-word characters")
+	if err := checkName(namespace); err != nil {
+		return "", "", nil, err
 	}
 
 	return command, namespace, arguments[2:], nil

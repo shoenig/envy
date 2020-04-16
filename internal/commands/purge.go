@@ -51,6 +51,10 @@ func (pc purgeCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interf
 	}
 
 	namespace := fs.Arg(0)
+	if err := checkName(namespace); err != nil {
+		pc.writer.Errorf("could not purge namespace: %v", err)
+		return subcommands.ExitUsageError
+	}
 
 	if err := pc.box.Purge(namespace); err != nil {
 		pc.writer.Errorf("could not purge namespace: %v", err)
