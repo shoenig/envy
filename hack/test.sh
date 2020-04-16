@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo "foo: is ${foo}, bar is: ${bar}"
+echo "a: is ${a}, b is: ${b}"
 
 
 
