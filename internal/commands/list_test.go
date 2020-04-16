@@ -50,8 +50,11 @@ func TestListCmd_Execute(t *testing.T) {
 		"namespace1", "ns2", "my-ns",
 	}, nil)
 
+	// no arguments for list
+	fs, args := setupFlagSet(t, []string{})
+	lc.SetFlags(fs)
 	ctx := context.Background()
-	rc := lc.Execute(ctx, nil, nil)
+	rc := lc.Execute(ctx, fs, args)
 
 	require.Equal(t, subcommands.ExitSuccess, rc)
 	require.Equal(t, "namespace1\nns2\nmy-ns\n", a.String())
@@ -73,8 +76,11 @@ func TestListCmd_Execute_listFails(t *testing.T) {
 
 	box.ListMock.Expect().Return(nil, errors.New("io error"))
 
+	// no arguments for list
+	fs, args := setupFlagSet(t, []string{})
+	lc.SetFlags(fs)
 	ctx := context.Background()
-	rc := lc.Execute(ctx, nil, nil)
+	rc := lc.Execute(ctx, fs, args)
 
 	require.Equal(t, subcommands.ExitFailure, rc)
 	require.Empty(t, "", a.String())
