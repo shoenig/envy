@@ -6,8 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/zalando/go-keyring"
 	"gophers.dev/cmds/envy/internal/output"
 )
+
+func init() {
+	// For tests only, use the mock implementation of the keyring provider.
+	keyring.MockInit()
+}
 
 func newDBFile(t *testing.T) string {
 	f, err := ioutil.TempFile("", "tool-")
