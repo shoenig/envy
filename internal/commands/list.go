@@ -45,6 +45,11 @@ func (lc listCmd) SetFlags(set *flag.FlagSet) {
 }
 
 func (lc listCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+	if f.NArg() != 0 {
+		lc.writer.Errorf("list command expects no args")
+		return subcommands.ExitUsageError
+	}
+
 	namespaces, err := lc.box.List()
 	if err != nil {
 		lc.writer.Errorf("unable to list namespaces: %v", err)

@@ -80,3 +80,27 @@ func TestListCmd_Execute_listFails(t *testing.T) {
 	require.Empty(t, "", a.String())
 	require.Equal(t, "envy: unable to list namespaces: io error\n", b.String())
 }
+
+func TestListCmd_Execute_extraArgs(t *testing.T) {
+	t.Parallel()
+
+	box := safe.NewBoxMock(t)
+	defer box.MinimockFinish()
+
+	a, b, w := newWriter()
+
+	lc := &listCmd{
+		writer: w,
+		box:    box,
+	}
+
+	// nonsense args for list
+	fs, args := setupFlagSet(t, []string{"a=b", "c=d"})
+	lc.SetFlags(fs)
+	ctx := context.Background()
+	rc := lc.Execute(ctx, fs, args)
+
+	require.Equal(t, subcommands.ExitUsageError, rc)
+	require.Empty(t, "", a.String())
+	require.Equal(t, "envy: list command expects no args\n", b.String())
+}
