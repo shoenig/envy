@@ -14,7 +14,7 @@ import (
 
 var (
 	argRe       = regexp.MustCompile(`^(?P<key>[\w]+)=(?P<secret>.+)$`)
-	namespaceRe = regexp.MustCompile(`^[\w]+$`)
+	namespaceRe = regexp.MustCompile(`^[-\w]+$`)
 )
 
 type Extractor interface {
