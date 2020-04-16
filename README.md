@@ -1,17 +1,27 @@
 envy
 ====
 
-Use `envy` to manage environment variables when running commands.
+Use `envy` to manage sensitive environment variables when running commands.
 
-TODO cards
+[![Go Report Card](https://goreportcard.com/badge/gophers.dev/cmds/envy)](https://goreportcard.com/report/gophers.dev/cmds/envy)
+[![Build Status](https://travis-ci.org/shoenig/envy.svg?branch=master)](https://travis-ci.org/shoenig/envy)
+[![GoDoc](https://godoc.org/gophers.dev/cmds/envy?status.svg)](https://godoc.org/gophers.dev/cmds/envy)
+![NetflixOSS Lifecycle](https://img.shields.io/osslifecycle/shoenig/envy.svg)
+![GitHub](https://img.shields.io/github/license/shoenig/envy.svg)
 
 # Project Overview
 
-TODO
+Module `gophers.dev/cmds/envy` provides a command-line utility for managing
+secretive environment variables when running commands.
 
 # Getting Started
 
-TODO
+#### Build from source
+
+The `envy` command can be compiled by running
+```bash
+$ go get gophers.dev/cmds/envy
+```
 
 # Example Usages
 
