@@ -1,0 +1,16 @@
+language: go
+
+go:
+  - 1.14.x
+
+env:
+  - GO111MODULE=on
+
+install:
+  - echo "no install step"
+
+script:
+  - go generate ./...
+  - go build ./...
+  - go vet ./...
+  - go test -race ./...
