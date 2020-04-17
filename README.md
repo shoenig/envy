@@ -11,8 +11,12 @@ Use `envy` to manage sensitive environment variables when running commands.
 
 # Project Overview
 
-Module `gophers.dev/cmds/envy` provides a command-line utility for managing
+`gophers.dev/cmds/envy` provides a command-line utility for managing
 secretive environment variables when running commands.
+
+`envy` builds on ideas from [envchain](github.com/sorah/envchain) and [schain](github.com/evanphx/schain). It makes use of the [go-keyring](github.com/zalando/go-keyring) library for multi-platform keyring management. Encryption is based on Go's built-in `crypto/aes` library. Persistent storage is managed through [boltdb](github.com/etcd-io/bbolt).
+
+Supports **Linux**, **macOS**, and **Windows**
 
 # Getting Started
 
