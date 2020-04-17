@@ -14,7 +14,7 @@ import (
 )
 
 func TestListCmd_Ops(t *testing.T) {
-	t.Parallel()
+	
 
 	db := newDBFile(t)
 	cleanupFile(t, db)
@@ -34,7 +34,7 @@ func TestListCmd_Ops(t *testing.T) {
 }
 
 func TestListCmd_Execute(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -62,7 +62,7 @@ func TestListCmd_Execute(t *testing.T) {
 }
 
 func TestListCmd_Execute_listFails(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -88,7 +88,7 @@ func TestListCmd_Execute_listFails(t *testing.T) {
 }
 
 func TestListCmd_Execute_extraArgs(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()

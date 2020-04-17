@@ -12,8 +12,6 @@ import (
 var _ Box = (*box)(nil)
 
 func TestSafe_Path(t *testing.T) {
-	t.Parallel()
-
 	t.Run("default", func(t *testing.T) {
 		p, err := Path("")
 		require.NoError(t, err)
@@ -35,8 +33,6 @@ func newFile(t *testing.T) string {
 }
 
 func TestSafe_Set(t *testing.T) {
-	t.Parallel()
-
 	b, err := New(newFile(t))
 	require.NoError(t, err)
 
@@ -107,8 +103,6 @@ func TestSafe_Set(t *testing.T) {
 }
 
 func TestSafe_Purge(t *testing.T) {
-	t.Parallel()
-
 	b, err := New(newFile(t))
 	require.NoError(t, err)
 
@@ -146,8 +140,6 @@ func TestSafe_Purge(t *testing.T) {
 }
 
 func TestSafe_Update(t *testing.T) {
-	t.Parallel()
-
 	b, err := New(newFile(t))
 	require.NoError(t, err)
 

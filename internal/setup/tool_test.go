@@ -29,7 +29,7 @@ func cleanupFile(t *testing.T, name string) {
 }
 
 func TestTool_New(t *testing.T) {
-	t.Parallel()
+	
 
 	db := newDBFile(t)
 	defer cleanupFile(t, db)

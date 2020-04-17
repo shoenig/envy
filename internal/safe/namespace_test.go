@@ -7,7 +7,7 @@ import (
 )
 
 func TestNamespace_String(t *testing.T) {
-	t.Parallel()
+	
 
 	ns := &Namespace{
 		Name: "ns1",

@@ -43,7 +43,7 @@ func setupFlagSet(t *testing.T, arguments []string) (*flag.FlagSet, interface{})
 }
 
 func TestCommon_args(t *testing.T) {
-	t.Parallel()
+	
 
 	// google/subcommands passes args wrapped like this
 	wrap := func(a []string) []interface{} {

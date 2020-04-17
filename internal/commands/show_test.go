@@ -15,7 +15,7 @@ import (
 )
 
 func TestShowCmd_Ops(t *testing.T) {
-	t.Parallel()
+	
 
 	db := newDBFile(t)
 	cleanupFile(t, db)
@@ -35,7 +35,7 @@ func TestShowCmd_Ops(t *testing.T) {
 }
 
 func TestShowCmd_Execute(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -70,7 +70,7 @@ func TestShowCmd_Execute(t *testing.T) {
 }
 
 func TestShowCmd_Execute_decrypt(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -109,7 +109,7 @@ func TestShowCmd_Execute_decrypt(t *testing.T) {
 }
 
 func TestShowCmd_Execute_noNS(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()

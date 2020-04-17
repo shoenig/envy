@@ -8,7 +8,7 @@ import (
 )
 
 func TestWriter_Directf(t *testing.T) {
-	t.Parallel()
+	
 
 	var a, b bytes.Buffer
 
@@ -19,7 +19,7 @@ func TestWriter_Directf(t *testing.T) {
 }
 
 func TestWriter_Errorf(t *testing.T) {
-	t.Parallel()
+	
 
 	var a, b bytes.Buffer
 

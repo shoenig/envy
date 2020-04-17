@@ -16,7 +16,7 @@ import (
 )
 
 func TestSetCmd_Ops(t *testing.T) {
-	t.Parallel()
+	
 
 	db := newDBFile(t)
 	cleanupFile(t, db)
@@ -36,7 +36,7 @@ func TestSetCmd_Ops(t *testing.T) {
 }
 
 func TestSetCmd_Execute(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -74,7 +74,7 @@ func TestSetCmd_Execute(t *testing.T) {
 }
 
 func TestSetCmd_Execute_ioError(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -112,7 +112,7 @@ func TestSetCmd_Execute_ioError(t *testing.T) {
 }
 
 func TestSetCmd_Execute_badNS(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -140,7 +140,7 @@ func TestSetCmd_Execute_badNS(t *testing.T) {
 }
 
 func TestSetCmd_Execute_noVars(t *testing.T) {
-	t.Parallel()
+	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
