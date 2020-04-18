@@ -33,10 +33,9 @@ func newFile(t *testing.T) string {
 }
 
 func TestSafe_Set(t *testing.T) {
-	b, err := New(newFile(t))
-	require.NoError(t, err)
+	b := New(newFile(t))
 
-	_, err = b.Get("does-not-exist")
+	_, err := b.Get("does-not-exist")
 	require.EqualError(t, err, "namespace \"does-not-exist\" does not exist")
 
 	// set ns1 first time
@@ -97,17 +96,13 @@ func TestSafe_Set(t *testing.T) {
 			"key3": []byte("value4"),
 		},
 	}, ns1)
-
-	err = b.(*box).Close()
-	require.NoError(t, err)
 }
 
 func TestSafe_Purge(t *testing.T) {
-	b, err := New(newFile(t))
-	require.NoError(t, err)
+	b := New(newFile(t))
 
 	// set ns1
-	err = b.Set(&Namespace{
+	err := b.Set(&Namespace{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -134,17 +129,13 @@ func TestSafe_Purge(t *testing.T) {
 	// ensure ns1 is not set anymore
 	_, err = b.Get("ns1")
 	require.EqualError(t, err, `namespace "ns1" does not exist`)
-
-	err = b.(*box).Close()
-	require.NoError(t, err)
 }
 
 func TestSafe_Update(t *testing.T) {
-	b, err := New(newFile(t))
-	require.NoError(t, err)
+	b := New(newFile(t))
 
 	// set ns1
-	err = b.Set(&Namespace{
+	err := b.Set(&Namespace{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -185,7 +176,4 @@ func TestSafe_Update(t *testing.T) {
 			"key3": []byte("value3"),
 		},
 	}, ns1)
-
-	err = b.(*box).Close()
-	require.NoError(t, err)
 }
