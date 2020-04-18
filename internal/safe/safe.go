@@ -3,6 +3,7 @@ package safe
 import (
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -44,26 +45,54 @@ type Box interface {
 }
 
 type box struct {
+	file string
+
+	lock     sync.Mutex
 	database *bbolt.DB
 }
 
-func New(file string) (Box, error) {
-	options := &bbolt.Options{
-		Timeout: 1 * time.Second,
-	}
-
-	db, err := bbolt.Open(file, 0600, options)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to open persistent storage")
-	}
-
+func New(file string) Box {
 	return &box{
-		database: db,
-	}, nil
+		file: file,
+	}
 }
 
-func (b *box) Close() error {
-	return b.database.Close()
+func (b *box) open() error {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+
+	if b.database != nil {
+		return errors.New("database already open")
+	}
+
+	options := &bbolt.Options{
+		Timeout: 3 * time.Second,
+	}
+	db, err := bbolt.Open(b.file, 0600, options)
+	if err != nil {
+		return errors.Wrap(err, "unable to open persistent storage")
+	}
+	b.database = db
+	return nil
+}
+
+func (b *box) close(openErr error) {
+	if openErr != nil {
+		panic(openErr)
+	}
+
+	b.lock.Lock()
+	defer b.lock.Unlock()
+
+	if b.database == nil {
+		panic("database already closed")
+	}
+
+	if err := b.database.Close(); err != nil {
+		panic(err)
+	}
+
+	b.database = nil
 }
 
 func bucket(create bool, tx *bbolt.Tx, namespace string) (*bbolt.Bucket, error) {
@@ -93,6 +122,8 @@ func wipe(bkt *bbolt.Bucket, namespace string) error {
 
 // Purge will delete the namespace, including any existing content.
 func (b *box) Purge(namespace string) error {
+	defer b.close(b.open())
+
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		return tx.DeleteBucket([]byte(namespace))
 	})
@@ -101,6 +132,8 @@ func (b *box) Purge(namespace string) error {
 // Set will set the contents of ns, eliminating or overwriting anything that
 // existed in that namespace before.
 func (b *box) Set(ns *Namespace) error {
+	defer b.close(b.open())
+
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(true, tx, ns.Name)
 		if err != nil {
@@ -116,6 +149,8 @@ func (b *box) Set(ns *Namespace) error {
 // Update will set the contents of ns, overwriting anything that existed in that
 // namespace before. Pre-existing non-overlapping values will remain.
 func (b *box) Update(ns *Namespace) error {
+	defer b.close(b.open())
+
 	return b.database.Update(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(true, tx, ns.Name)
 		if err != nil {
@@ -127,8 +162,9 @@ func (b *box) Update(ns *Namespace) error {
 
 // Get will return the contents of namespace.
 func (b *box) Get(namespace string) (*Namespace, error) {
-	content := make(map[string]Encrypted)
+	defer b.close(b.open())
 
+	content := make(map[string]Encrypted)
 	if err := b.database.View(func(tx *bbolt.Tx) error {
 		bkt, err := bucket(false, tx, namespace)
 		if err != nil {
@@ -155,6 +191,8 @@ func (b *box) Get(namespace string) (*Namespace, error) {
 
 // List will return a list of namespaces that have been created.
 func (b *box) List() ([]string, error) {
+	defer b.close(b.open())
+
 	var namespaces []string
 	if err := b.database.View(func(tx *bbolt.Tx) error {
 		return tx.ForEach(func(ns []byte, _ *bbolt.Bucket) error {

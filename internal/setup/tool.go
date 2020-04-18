@@ -22,14 +22,9 @@ func New(file string, w output.Writer) *Tool {
 		panic(err)
 	}
 
-	box, err := safe.New(dbFile)
-	if err != nil {
-		panic(err)
-	}
-
 	return &Tool{
 		Writer: w,
 		Ring:   keyring.New(keyring.Init(envyKeyringName)),
-		Box:    box,
+		Box:    safe.New(dbFile),
 	}
 }
