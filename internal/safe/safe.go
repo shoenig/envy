@@ -160,6 +160,12 @@ func (b *box) Update(ns *Namespace) error {
 	})
 }
 
+func duplicate(b []byte) []byte {
+	c := make([]byte, len(b))
+	copy(c, b)
+	return c
+}
+
 // Get will return the contents of namespace.
 func (b *box) Get(namespace string) (*Namespace, error) {
 	defer b.close(b.open())
@@ -172,7 +178,7 @@ func (b *box) Get(namespace string) (*Namespace, error) {
 		}
 
 		if err := bkt.ForEach(func(k []byte, v []byte) error {
-			content[string(k)] = Encrypted(v)
+			content[string(k)] = Encrypted(duplicate(v))
 			return nil
 		}); err != nil {
 			return err
