@@ -24,7 +24,7 @@ Supports **Linux**, **macOS**, and **Windows**
 
 The `envy` command can be compiled by running
 ```bash
-$ go get gophers.dev/cmds/envy
+$ go install gophers.dev/cmds/envy@latest
 ```
 
 # Example Usages
