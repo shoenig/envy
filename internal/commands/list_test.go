@@ -7,34 +7,25 @@ import (
 
 	"github.com/google/subcommands"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/require"
+	"github.com/shoenig/test/must"
 	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/safe"
 	"gophers.dev/cmds/envy/internal/setup"
 )
 
 func TestListCmd_Ops(t *testing.T) {
-	
-
 	db := newDBFile(t)
-	cleanupFile(t, db)
+	defer cleanupFile(t, db)
 
 	w := output.New(os.Stdout, os.Stdout)
 	cmd := NewListCmd(setup.New(db, w))
 
-	t.Run("name", func(t *testing.T) {
-		require.Equal(t, listCmdName, cmd.Name())
-	})
-	t.Run("synopsis", func(t *testing.T) {
-		require.Equal(t, listCmdSynopsis, cmd.Synopsis())
-	})
-	t.Run("usage", func(t *testing.T) {
-		require.Equal(t, listCmdUsage, cmd.Usage())
-	})
+	must.Eq(t, listCmdName, cmd.Name())
+	must.Eq(t, listCmdSynopsis, cmd.Synopsis())
+	must.Eq(t, listCmdUsage, cmd.Usage())
 }
 
 func TestListCmd_Execute(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -56,13 +47,12 @@ func TestListCmd_Execute(t *testing.T) {
 	ctx := context.Background()
 	rc := lc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitSuccess, rc)
-	require.Equal(t, "namespace1\nns2\nmy-ns\n", a.String())
-	require.Empty(t, b.String())
+	must.Eq(t, subcommands.ExitSuccess, rc)
+	must.Eq(t, "namespace1\nns2\nmy-ns\n", a.String())
+	must.Eq(t, "", b.String())
 }
 
 func TestListCmd_Execute_listFails(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -82,13 +72,12 @@ func TestListCmd_Execute_listFails(t *testing.T) {
 	ctx := context.Background()
 	rc := lc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitFailure, rc)
-	require.Empty(t, "", a.String())
-	require.Equal(t, "envy: unable to list namespaces: io error\n", b.String())
+	must.Eq(t, subcommands.ExitFailure, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: unable to list namespaces: io error\n", b.String())
 }
 
 func TestListCmd_Execute_extraArgs(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -106,7 +95,7 @@ func TestListCmd_Execute_extraArgs(t *testing.T) {
 	ctx := context.Background()
 	rc := lc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitUsageError, rc)
-	require.Empty(t, "", a.String())
-	require.Equal(t, "envy: list command expects no args\n", b.String())
+	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: list command expects no args\n", b.String())
 }

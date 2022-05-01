@@ -3,12 +3,10 @@ package safe
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/shoenig/test/must"
 )
 
 func TestNamespace_String(t *testing.T) {
-	
-
 	ns := &Namespace{
 		Name: "ns1",
 		Content: map[string]Encrypted{
@@ -18,5 +16,5 @@ func TestNamespace_String(t *testing.T) {
 	}
 	s := ns.String()
 	exp := "(ns1 [bar foo])"
-	require.Equal(t, exp, s)
+	must.Eq(t, exp, s)
 }

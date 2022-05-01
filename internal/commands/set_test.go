@@ -2,12 +2,12 @@ package commands
 
 import (
 	"context"
+	"github.com/shoenig/test/must"
 	"os"
 	"testing"
 
 	"github.com/google/subcommands"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/require"
 	"gophers.dev/cmds/envy/internal/keyring"
 	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/safe"
@@ -16,27 +16,19 @@ import (
 )
 
 func TestSetCmd_Ops(t *testing.T) {
-	
 
 	db := newDBFile(t)
-	cleanupFile(t, db)
+	defer cleanupFile(t, db)
 
 	w := output.New(os.Stdout, os.Stdout)
 	cmd := NewSetCmd(setup.New(db, w))
 
-	t.Run("name", func(t *testing.T) {
-		require.Equal(t, setCmdName, cmd.Name())
-	})
-	t.Run("synopsis", func(t *testing.T) {
-		require.Equal(t, setCmdSynopsis, cmd.Synopsis())
-	})
-	t.Run("usage", func(t *testing.T) {
-		require.Equal(t, setCmdUsage, cmd.Usage())
-	})
+	must.Eq(t, setCmdName, cmd.Name())
+	must.Eq(t, setCmdSynopsis, cmd.Synopsis())
+	must.Eq(t, setCmdUsage, cmd.Usage())
 }
 
 func TestSetCmd_Execute(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -68,14 +60,12 @@ func TestSetCmd_Execute(t *testing.T) {
 	ctx := context.Background()
 	rc := pc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitSuccess, rc)
-	require.Equal(t, "stored 2 items in \"myNS\"\n", a.String())
-	require.Empty(t, b.String())
+	must.Eq(t, subcommands.ExitSuccess, rc)
+	must.Eq(t, "", b.String())
+	must.Eq(t, "stored 2 items in \"myNS\"\n", a.String())
 }
 
 func TestSetCmd_Execute_ioError(t *testing.T) {
-	
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -106,13 +96,12 @@ func TestSetCmd_Execute_ioError(t *testing.T) {
 	ctx := context.Background()
 	rc := pc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitFailure, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: unable to update namespace: io error\n", b.String())
+	must.Eq(t, subcommands.ExitFailure, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: unable to update namespace: io error\n", b.String())
 }
 
 func TestSetCmd_Execute_badNS(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -134,13 +123,12 @@ func TestSetCmd_Execute_badNS(t *testing.T) {
 	ctx := context.Background()
 	rc := pc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitUsageError, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: unable to parse args: namespace uses non-word characters\n", b.String())
+	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: unable to parse args: namespace uses non-word characters\n", b.String())
 }
 
 func TestSetCmd_Execute_noVars(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -162,7 +150,7 @@ func TestSetCmd_Execute_noVars(t *testing.T) {
 	ctx := context.Background()
 	rc := pc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitUsageError, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: use 'purge' to remove namespace\n", b.String())
+	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: use 'purge' to remove namespace\n", b.String())
 }

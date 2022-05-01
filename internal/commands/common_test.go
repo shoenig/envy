@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/shoenig/test/must"
 	"github.com/zalando/go-keyring"
 	"gophers.dev/cmds/envy/internal/output"
 )
@@ -19,15 +19,15 @@ func init() {
 
 func newDBFile(t *testing.T) string {
 	f, err := ioutil.TempFile("", "tool-")
-	require.NoError(t, err)
+	must.NoError(t, err)
 	err = f.Close()
-	require.NoError(t, err)
+	must.NoError(t, err)
 	return f.Name()
 }
 
 func cleanupFile(t *testing.T, name string) {
 	err := os.Remove(name)
-	require.NoError(t, err)
+	must.NoError(t, err)
 }
 
 func newWriter() (*bytes.Buffer, *bytes.Buffer, output.Writer) {
@@ -38,12 +38,11 @@ func newWriter() (*bytes.Buffer, *bytes.Buffer, output.Writer) {
 func setupFlagSet(t *testing.T, arguments []string) (*flag.FlagSet, interface{}) {
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
 	err := fs.Parse(arguments)
-	require.NoError(t, err)
+	must.NoError(t, err)
 	return fs, arguments
 }
 
 func TestCommon_args(t *testing.T) {
-	
 
 	// google/subcommands passes args wrapped like this
 	wrap := func(a []string) []interface{} {
@@ -52,29 +51,29 @@ func TestCommon_args(t *testing.T) {
 
 	t.Run("no arguments", func(t *testing.T) {
 		_, _, _, err := extract(wrap([]string{}))
-		require.EqualError(t, err, "not enough arguments")
+		must.EqError(t, err, "not enough arguments")
 	})
 
 	t.Run("one argument", func(t *testing.T) {
 		_, _, _, err := extract(wrap([]string{"foo"}))
-		require.EqualError(t, err, "not enough arguments")
+		must.EqError(t, err, "not enough arguments")
 	})
 
 	t.Run("two arguments", func(t *testing.T) {
 		verb, ns, argv, err := extract(wrap([]string{"foo", "bar"}))
-		require.Equal(t, "foo", verb)
-		require.Equal(t, "bar", ns)
-		require.Empty(t, argv)
-		require.NoError(t, err)
+		must.Eq(t, "foo", verb)
+		must.Eq(t, "bar", ns)
+		must.Empty(t, argv)
+		must.NoError(t, err)
 	})
 
 	t.Run("four arguments", func(t *testing.T) {
 		verb, ns, secrets, err := extract(wrap([]string{"a", "b", "c", "d"}))
-		require.Equal(t, "a", verb)
-		require.Equal(t, "b", ns)
-		require.Equal(t, 2, len(secrets))
-		require.Equal(t, "c", secrets[0].Secret())
-		require.Equal(t, "d", secrets[1].Secret())
-		require.NoError(t, err)
+		must.Eq(t, "a", verb)
+		must.Eq(t, "b", ns)
+		must.Eq(t, 2, len(secrets))
+		must.Eq(t, "c", secrets[0].Secret())
+		must.Eq(t, "d", secrets[1].Secret())
+		must.NoError(t, err)
 	})
 }
