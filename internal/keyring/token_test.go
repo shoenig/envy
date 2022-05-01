@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-uuid"
-	"github.com/stretchr/testify/require"
+	"github.com/shoenig/test/must"
 	"github.com/zalando/go-keyring"
 )
 
@@ -17,7 +17,7 @@ func init() {
 func setEnv(t *testing.T, key, value string) string {
 	previous := os.Getenv(key)
 	err := os.Setenv(key, value)
-	require.NoError(t, err)
+	must.NoError(t, err)
 	return previous
 }
 
@@ -32,7 +32,7 @@ func TestInit_user(t *testing.T) {
 		defer setEnv(t, "ENVY_USER", prevEnvyUser)
 
 		u := user()
-		require.Equal(t, "default", u)
+		must.Eq(t, "default", u)
 	})
 
 	t.Run("user", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestInit_user(t *testing.T) {
 		defer setEnv(t, "ENVY_USER", prevEnvyUser)
 
 		u := user()
-		require.Equal(t, "alice", u)
+		must.Eq(t, "alice", u)
 	})
 
 	t.Run("envy_user", func(t *testing.T) {
@@ -54,13 +54,13 @@ func TestInit_user(t *testing.T) {
 		defer setEnv(t, "ENVY_USER", prevEnvyUser)
 
 		u := user()
-		require.Equal(t, "bob", u)
+		must.Eq(t, "bob", u)
 	})
 }
 
 func isUUID(t *testing.T, id string) {
 	_, err := uuid.ParseUUID(id)
-	require.NoError(t, err)
+	must.NoError(t, err)
 }
 
 func TestInit_bootstrap(t *testing.T) {
@@ -85,5 +85,5 @@ func TestInit_init(t *testing.T) {
 	isUUID(t, id2.Secret())
 
 	// and the result should be the same
-	require.Equal(t, id.Secret(), id2.Secret())
+	must.Eq(t, id.Secret(), id2.Secret())
 }

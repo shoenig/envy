@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/subcommands"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/require"
+	"github.com/shoenig/test/must"
 	"gophers.dev/cmds/envy/internal/keyring"
 	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/safe"
@@ -16,28 +16,18 @@ import (
 )
 
 func TestUpdateCmd_Ops(t *testing.T) {
-	
-
 	db := newDBFile(t)
-	cleanupFile(t, db)
+	defer cleanupFile(t, db)
 
 	w := output.New(os.Stdout, os.Stdout)
 	cmd := NewUpdateCmd(setup.New(db, w))
 
-	t.Run("name", func(t *testing.T) {
-		require.Equal(t, updateCmdName, cmd.Name())
-	})
-	t.Run("synopsis", func(t *testing.T) {
-		require.Equal(t, updateCmdSynopsis, cmd.Synopsis())
-	})
-	t.Run("usage", func(t *testing.T) {
-		require.Equal(t, updateCmdUsage, cmd.Usage())
-	})
+	must.Eq(t, updateCmdName, cmd.Name())
+	must.Eq(t, updateCmdSynopsis, cmd.Synopsis())
+	must.Eq(t, updateCmdUsage, cmd.Usage())
 }
 
 func TestUpdateCmd_Execute(t *testing.T) {
-	
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -68,14 +58,12 @@ func TestUpdateCmd_Execute(t *testing.T) {
 	ctx := context.Background()
 	rc := uc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitSuccess, rc)
-	require.Equal(t, "updated 2 items in \"myNS\"\n", a.String())
-	require.Empty(t, b.String())
+	must.Eq(t, subcommands.ExitSuccess, rc)
+	must.Eq(t, "updated 2 items in \"myNS\"\n", a.String())
+	must.Eq(t, "", b.String())
 }
 
 func TestUpdateCmd_Execute_noArgs(t *testing.T) {
-	
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -95,14 +83,12 @@ func TestUpdateCmd_Execute_noArgs(t *testing.T) {
 	ctx := context.Background()
 	rc := uc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitUsageError, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: use 'purge' to remove namespace\n", b.String())
+	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: use 'purge' to remove namespace\n", b.String())
 }
 
 func TestUpdateCmd_Execute_noNS(t *testing.T) {
-	
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -122,14 +108,12 @@ func TestUpdateCmd_Execute_noNS(t *testing.T) {
 	ctx := context.Background()
 	rc := uc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitUsageError, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: unable to parse args: not enough arguments\n", b.String())
+	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: unable to parse args: not enough arguments\n", b.String())
 }
 
 func TestUpdateCmd_Execute_ioError(t *testing.T) {
-	
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -160,7 +144,7 @@ func TestUpdateCmd_Execute_ioError(t *testing.T) {
 	ctx := context.Background()
 	rc := uc.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitFailure, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: unable to update namespace: io error\n", b.String())
+	must.Eq(t, subcommands.ExitFailure, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: unable to update namespace: io error\n", b.String())
 }

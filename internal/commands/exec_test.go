@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/subcommands"
-	"github.com/stretchr/testify/require"
+	"github.com/shoenig/test/must"
 	"gophers.dev/cmds/envy/internal/keyring"
 	"gophers.dev/cmds/envy/internal/output"
 	"gophers.dev/cmds/envy/internal/safe"
@@ -16,28 +16,18 @@ import (
 )
 
 func TestExecCmd_Ops(t *testing.T) {
-	
-
 	db := newDBFile(t)
-	cleanupFile(t, db)
+	defer cleanupFile(t, db)
 
 	w := output.New(os.Stdout, os.Stdout)
 	cmd := NewExecCmd(setup.New(db, w))
 
-	t.Run("name", func(t *testing.T) {
-		require.Equal(t, execCmdName, cmd.Name())
-	})
-	t.Run("synopsis", func(t *testing.T) {
-		require.Equal(t, execCmdSynopsis, cmd.Synopsis())
-	})
-	t.Run("usage", func(t *testing.T) {
-		require.Equal(t, execCmdUsage, cmd.Usage())
-	})
+	must.Eq(t, execCmdName, cmd.Name())
+	must.Eq(t, execCmdSynopsis, cmd.Synopsis())
+	must.Eq(t, execCmdUsage, cmd.Usage())
 }
 
 func TestExecCmd_Execute(t *testing.T) {
-	
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -71,15 +61,14 @@ func TestExecCmd_Execute(t *testing.T) {
 	ctx := context.Background()
 	rc := ec.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitSuccess, rc)
-	require.Empty(t, a.String())
-	require.Empty(t, b.String())
-	require.Equal(t, "a is passw0rd\nb is hunter2\n", c.String())
-	require.Empty(t, d.String())
+	must.Eq(t, subcommands.ExitSuccess, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "", b.String())
+	must.Eq(t, "a is passw0rd\nb is hunter2\n", c.String())
+	must.Eq(t, "", d.String())
 }
 
 func TestExecCmd_Execute_noCommand(t *testing.T) {
-	
 
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
@@ -103,9 +92,9 @@ func TestExecCmd_Execute_noCommand(t *testing.T) {
 	ctx := context.Background()
 	rc := ec.Execute(ctx, fs, args)
 
-	require.Equal(t, subcommands.ExitUsageError, rc)
-	require.Empty(t, a.String())
-	require.Equal(t, "envy: expected namespace and command argument(s)\n", b.String())
-	require.Empty(t, c.String())
-	require.Empty(t, d.String())
+	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: expected namespace and command argument(s)\n", b.String())
+	must.Eq(t, "", c.String())
+	must.Eq(t, "", d.String())
 }
