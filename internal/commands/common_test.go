@@ -7,9 +7,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/test/must"
 	"github.com/zalando/go-keyring"
-	"gophers.dev/cmds/envy/internal/output"
 )
 
 func init() {
@@ -63,7 +63,7 @@ func TestCommon_args(t *testing.T) {
 		verb, ns, argv, err := extract(wrap([]string{"foo", "bar"}))
 		must.Eq(t, "foo", verb)
 		must.Eq(t, "bar", ns)
-		must.Empty(t, argv)
+		must.SliceEmpty(t, argv)
 		must.NoError(t, err)
 	})
 

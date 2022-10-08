@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"gophers.dev/cmds/envy/internal/keyring"
-	"gophers.dev/cmds/envy/internal/safe"
-	"gophers.dev/pkgs/regexplus"
-	"gophers.dev/pkgs/secrets"
+	"github.com/shoenig/envy/internal/keyring"
+	"github.com/shoenig/envy/internal/safe"
+	"github.com/shoenig/regexplus"
+	"github.com/shoenig/secrets"
 )
 
 var (

@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/google/subcommands"
-	"gophers.dev/cmds/envy/internal/commands"
-	"gophers.dev/cmds/envy/internal/output"
-	"gophers.dev/cmds/envy/internal/setup"
+	"github.com/shoenig/envy/internal/commands"
+	"github.com/shoenig/envy/internal/output"
+	"github.com/shoenig/envy/internal/setup"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/zalando/go-keyring"
-	"gophers.dev/cmds/envy/internal/output"
+	"github.com/shoenig/envy/internal/output"
 )
 
 func init() {

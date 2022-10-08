@@ -9,10 +9,10 @@ import (
 	"os/exec"
 
 	"github.com/google/subcommands"
-	"gophers.dev/cmds/envy/internal/keyring"
-	"gophers.dev/cmds/envy/internal/output"
-	"gophers.dev/cmds/envy/internal/safe"
-	"gophers.dev/cmds/envy/internal/setup"
+	"github.com/shoenig/envy/internal/keyring"
+	"github.com/shoenig/envy/internal/output"
+	"github.com/shoenig/envy/internal/safe"
+	"github.com/shoenig/envy/internal/setup"
 )
 
 const (

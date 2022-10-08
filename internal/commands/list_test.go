@@ -8,9 +8,9 @@ import (
 	"github.com/google/subcommands"
 	"github.com/pkg/errors"
 	"github.com/shoenig/test/must"
-	"gophers.dev/cmds/envy/internal/output"
-	"gophers.dev/cmds/envy/internal/safe"
-	"gophers.dev/cmds/envy/internal/setup"
+	"github.com/shoenig/envy/internal/output"
+	"github.com/shoenig/envy/internal/safe"
+	"github.com/shoenig/envy/internal/setup"
 )
 
 func TestListCmd_Ops(t *testing.T) {
