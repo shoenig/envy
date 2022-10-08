@@ -16,6 +16,16 @@ Supports **Linux**, **macOS**, and **Windows**
 
 # Getting Started
 
+#### Install
+
+The `envy` command is availble to download from the [Releases](https://github.com/shoenig/envy/releases) page.
+
+Multiple operating systems and architectures are supported, including
+
+- Linux
+- macOS
+- Windows
+
 #### Build from source
 
 The `envy` command can be compiled by running
