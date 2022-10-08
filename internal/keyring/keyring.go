@@ -5,8 +5,8 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 
-	"gophers.dev/cmds/envy/internal/safe"
-	"gophers.dev/pkgs/secrets"
+	"github.com/shoenig/envy/internal/safe"
+	"github.com/shoenig/secrets"
 )
 
 // A Ring is used to encrypt and decrypt secrets.

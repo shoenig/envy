@@ -1,9 +1,9 @@
 package setup
 
 import (
-	"gophers.dev/cmds/envy/internal/keyring"
-	"gophers.dev/cmds/envy/internal/output"
-	"gophers.dev/cmds/envy/internal/safe"
+	"github.com/shoenig/envy/internal/keyring"
+	"github.com/shoenig/envy/internal/output"
+	"github.com/shoenig/envy/internal/safe"
 )
 
 const (

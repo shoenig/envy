@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/shoenig/test/must"
-	"gophers.dev/pkgs/ignore"
+	"github.com/shoenig/ignore"
 )
 
 var _ Box = (*box)(nil)

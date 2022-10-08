@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/zalando/go-keyring"
-	"gophers.dev/pkgs/secrets"
+	"github.com/shoenig/secrets"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/shoenig/test/must"
-	"gophers.dev/pkgs/secrets"
+	"github.com/shoenig/secrets"
 )
 
 func TestRing_EncryptDecrypt(t *testing.T) {
