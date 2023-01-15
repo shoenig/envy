@@ -10,7 +10,7 @@ require (
 	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
 	github.com/shoenig/secrets v0.3.0
-	github.com/shoenig/test v0.4.0
+	github.com/shoenig/test v0.6.0
 	github.com/zalando/go-keyring v0.2.2
 	go.etcd.io/bbolt v1.3.6
 )
