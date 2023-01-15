@@ -58,7 +58,7 @@ func (wc execCmd) SetFlags(fs *flag.FlagSet) {
 	_ = fs.Bool(flagInsulate, false, "insulate will run command without passing through environment")
 }
 
-func (wc execCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+func (wc execCmd) Execute(_ context.Context, fs *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	insulate := fsBool(fs, flagInsulate)
 
 	if len(fs.Args()) < 2 {
@@ -74,6 +74,7 @@ func (wc execCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interfa
 
 	cmd := wc.newCmd(ns, insulate, fs.Arg(1), fs.Args()[2:])
 	if err := cmd.Run(); err != nil {
+		wc.writer.Errorf("failed to exec: %v", err)
 		return subcommands.ExitFailure
 	}
 

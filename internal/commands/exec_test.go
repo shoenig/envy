@@ -7,12 +7,12 @@ import (
 	"testing"
 
 	"github.com/google/subcommands"
-	"github.com/shoenig/test/must"
 	"github.com/shoenig/envy/internal/keyring"
 	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
 	"github.com/shoenig/secrets"
+	"github.com/shoenig/test/must"
 )
 
 func TestExecCmd_Ops(t *testing.T) {
@@ -48,8 +48,8 @@ func TestExecCmd_Execute(t *testing.T) {
 	box.GetMock.Expect("myNS").Return(&safe.Namespace{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
-			"a": safe.Encrypted{0x1},
-			"b": safe.Encrypted{0x2},
+			"a": {0x1},
+			"b": {0x2},
 		},
 	}, nil)
 
@@ -69,7 +69,6 @@ func TestExecCmd_Execute(t *testing.T) {
 }
 
 func TestExecCmd_Execute_noCommand(t *testing.T) {
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -95,6 +94,47 @@ func TestExecCmd_Execute_noCommand(t *testing.T) {
 	must.Eq(t, subcommands.ExitUsageError, rc)
 	must.Eq(t, "", a.String())
 	must.Eq(t, "envy: expected namespace and command argument(s)\n", b.String())
+	must.Eq(t, "", c.String())
+	must.Eq(t, "", d.String())
+}
+
+func TestExecCmd_Execute_badCommand(t *testing.T) {
+	box := safe.NewBoxMock(t)
+	defer box.MinimockFinish()
+
+	ring := keyring.NewRingMock(t)
+	defer ring.MinimockFinish()
+
+	a, b, w := newWriter()
+	var c, d bytes.Buffer
+
+	box.GetMock.Expect("myNS").Return(&safe.Namespace{
+		Name: "myNS",
+		Content: map[string]safe.Encrypted{
+			"a": {0x1},
+			"b": {0x2},
+		},
+	}, nil)
+
+	ring.DecryptMock.When(safe.Encrypted{0x1}).Then(secrets.New("passw0rd"))
+	ring.DecryptMock.When(safe.Encrypted{0x2}).Then(secrets.New("hunter2"))
+
+	ec := &execCmd{
+		writer:        w,
+		ring:          ring,
+		box:           box,
+		execOutputStd: &c,
+		execOutputErr: &d,
+	}
+
+	fs, args := setupFlagSet(t, []string{"myNS", "/does/not/exist"})
+	ec.SetFlags(fs)
+	ctx := context.Background()
+	rc := ec.Execute(ctx, fs, args)
+
+	must.Eq(t, subcommands.ExitFailure, rc)
+	must.Eq(t, "", a.String())
+	must.Eq(t, "envy: failed to exec: fork/exec /does/not/exist: no such file or directory\n", b.String())
 	must.Eq(t, "", c.String())
 	must.Eq(t, "", d.String())
 }
