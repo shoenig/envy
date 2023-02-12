@@ -11,7 +11,7 @@ import (
 
 // A Ring is used to encrypt and decrypt secrets.
 //
-//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Ring -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock@v3.0.10 -g -i Ring -s _mock.go
 type Ring interface {
 	Encrypt(secrets.Text) safe.Encrypted
 	Decrypt(safe.Encrypted) secrets.Text

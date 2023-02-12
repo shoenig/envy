@@ -35,7 +35,7 @@ func Path(dbFile string) (string, error) {
 
 // A Box represents the persistent storage of encrypted secrets.
 //
-//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Box -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock@v3.0.10 -g -i Box -s _mock.go
 type Box interface {
 	Set(*Namespace) error
 	Purge(string) error
