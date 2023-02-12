@@ -141,7 +141,7 @@ func (mmGet *mBoxMockGet) Return(np1 *Namespace, err error) *BoxMock {
 	return mmGet.mock
 }
 
-//Set uses given function f to mock the Box.Get method
+// Set uses given function f to mock the Box.Get method
 func (mmGet *mBoxMockGet) Set(f func(s1 string) (np1 *Namespace, err error)) *BoxMock {
 	if mmGet.defaultExpectation != nil {
 		mmGet.mock.t.Fatalf("Default expectation is already set for the Box.Get method")
@@ -342,7 +342,7 @@ func (mmList *mBoxMockList) Return(sa1 []string, err error) *BoxMock {
 	return mmList.mock
 }
 
-//Set uses given function f to mock the Box.List method
+// Set uses given function f to mock the Box.List method
 func (mmList *mBoxMockList) Set(f func() (sa1 []string, err error)) *BoxMock {
 	if mmList.defaultExpectation != nil {
 		mmList.mock.t.Fatalf("Default expectation is already set for the Box.List method")
@@ -500,7 +500,7 @@ func (mmPurge *mBoxMockPurge) Return(err error) *BoxMock {
 	return mmPurge.mock
 }
 
-//Set uses given function f to mock the Box.Purge method
+// Set uses given function f to mock the Box.Purge method
 func (mmPurge *mBoxMockPurge) Set(f func(s1 string) (err error)) *BoxMock {
 	if mmPurge.defaultExpectation != nil {
 		mmPurge.mock.t.Fatalf("Default expectation is already set for the Box.Purge method")
@@ -715,7 +715,7 @@ func (mmSet *mBoxMockSet) Return(err error) *BoxMock {
 	return mmSet.mock
 }
 
-//Set uses given function f to mock the Box.Set method
+// Set uses given function f to mock the Box.Set method
 func (mmSet *mBoxMockSet) Set(f func(np1 *Namespace) (err error)) *BoxMock {
 	if mmSet.defaultExpectation != nil {
 		mmSet.mock.t.Fatalf("Default expectation is already set for the Box.Set method")
@@ -930,7 +930,7 @@ func (mmUpdate *mBoxMockUpdate) Return(err error) *BoxMock {
 	return mmUpdate.mock
 }
 
-//Set uses given function f to mock the Box.Update method
+// Set uses given function f to mock the Box.Update method
 func (mmUpdate *mBoxMockUpdate) Set(f func(np1 *Namespace) (err error)) *BoxMock {
 	if mmUpdate.defaultExpectation != nil {
 		mmUpdate.mock.t.Fatalf("Default expectation is already set for the Box.Update method")

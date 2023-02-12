@@ -116,7 +116,7 @@ func (mmDecrypt *mRingMockDecrypt) Return(t1 secrets.Text) *RingMock {
 	return mmDecrypt.mock
 }
 
-//Set uses given function f to mock the Ring.Decrypt method
+// Set uses given function f to mock the Ring.Decrypt method
 func (mmDecrypt *mRingMockDecrypt) Set(f func(e1 safe.Encrypted) (t1 secrets.Text)) *RingMock {
 	if mmDecrypt.defaultExpectation != nil {
 		mmDecrypt.mock.t.Fatalf("Default expectation is already set for the Ring.Decrypt method")
@@ -331,7 +331,7 @@ func (mmEncrypt *mRingMockEncrypt) Return(e1 safe.Encrypted) *RingMock {
 	return mmEncrypt.mock
 }
 
-//Set uses given function f to mock the Ring.Encrypt method
+// Set uses given function f to mock the Ring.Encrypt method
 func (mmEncrypt *mRingMockEncrypt) Set(f func(t1 secrets.Text) (e1 safe.Encrypted)) *RingMock {
 	if mmEncrypt.defaultExpectation != nil {
 		mmEncrypt.mock.t.Fatalf("Default expectation is already set for the Ring.Encrypt method")
