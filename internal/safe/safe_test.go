@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/shoenig/test/must"
 	"github.com/shoenig/ignore"
+	"github.com/shoenig/test/must"
 )
 
 var _ Box = (*box)(nil)
@@ -78,10 +78,11 @@ func TestSafe_Set(t *testing.T) {
 		},
 	}, ns2)
 
-	// set ns2 second time, ensure total replacement
+	// set ns2 second time
 	err = b.Set(&Namespace{
 		Name: "ns1",
 		Content: map[string]Encrypted{
+			"key1": []byte("value1"),
 			"key2": []byte("value3"),
 			"key3": []byte("value4"),
 		},
@@ -92,6 +93,7 @@ func TestSafe_Set(t *testing.T) {
 	must.Eq(t, &Namespace{
 		Name: "ns1",
 		Content: map[string]Encrypted{
+			"key1": []byte("value1"),
 			"key2": []byte("value3"),
 			"key3": []byte("value4"),
 		},
@@ -156,7 +158,7 @@ func TestSafe_Update(t *testing.T) {
 	}, ns1)
 
 	// update ns1
-	err = b.Update(&Namespace{
+	err = b.Set(&Namespace{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key2": []byte("value2"),

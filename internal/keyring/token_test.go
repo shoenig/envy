@@ -67,7 +67,7 @@ func TestInit_bootstrap(t *testing.T) {
 	// no parallel, sets environment
 
 	id := bootstrap("envy.name", "alice")
-	isUUID(t, id.Secret())
+	isUUID(t, id.Unveil())
 }
 
 func TestInit_init(t *testing.T) {
@@ -78,12 +78,12 @@ func TestInit_init(t *testing.T) {
 
 	// first time goes through bootstrap
 	id := Init("envy.name")
-	isUUID(t, id.Secret())
+	isUUID(t, id.Unveil())
 
 	// subsequent time should already exist
 	id2 := Init("envy.name")
-	isUUID(t, id2.Secret())
+	isUUID(t, id2.Unveil())
 
 	// and the result should be the same
-	must.Eq(t, id.Secret(), id2.Secret())
+	must.Eq(t, id.Unveil(), id2.Unveil())
 }

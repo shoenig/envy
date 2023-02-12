@@ -61,6 +61,6 @@ func (pc purgeCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interf
 		return subcommands.ExitFailure
 	}
 
-	pc.writer.Directf("purged namespace %q", namespace)
+	pc.writer.Printf("purged namespace %q", namespace)
 	return subcommands.ExitSuccess
 }

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-uuid"
+	"github.com/shoenig/go-conceal"
 	"github.com/shoenig/test/must"
-	"github.com/shoenig/secrets"
 )
 
 func TestRing_EncryptDecrypt(t *testing.T) {
@@ -13,12 +13,12 @@ func TestRing_EncryptDecrypt(t *testing.T) {
 	must.NoError(t, err)
 
 	password := "passw0rd"
-	r := New(secrets.New(id))
+	r := New(conceal.New(id))
 
-	enc := r.Encrypt(secrets.New(password))
+	enc := r.Encrypt(conceal.New(password))
 	must.NotNil(t, enc)
 	must.NotEq(t, []byte(password), enc)
 
 	plain := r.Decrypt(enc)
-	must.Eq(t, password, plain.Secret())
+	must.Eq(t, password, plain.Unveil())
 }

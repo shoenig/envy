@@ -99,7 +99,7 @@ func envContext(insulate bool) []string {
 
 func (wc execCmd) env(ns *safe.Namespace, environment []string) []string {
 	for key, value := range ns.Content {
-		secret := wc.ring.Decrypt(value).Secret()
+		secret := wc.ring.Decrypt(value).Unveil()
 		environment = append(environment, fmt.Sprintf(
 			"%s=%s", key, secret,
 		))

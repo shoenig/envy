@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-uuid"
+	"github.com/shoenig/go-conceal"
 	"github.com/zalando/go-keyring"
-	"github.com/shoenig/secrets"
 )
 
 const (
@@ -16,44 +16,44 @@ const (
 )
 
 func user() string {
-	user := userDefault
-	if u := os.Getenv(userEnvDefault); u != "" {
-		user = u
+	usr := userDefault
+	if envUsr := os.Getenv(userEnvDefault); envUsr != "" {
+		usr = envUsr
 	}
-	if u := os.Getenv(userEnvOverride); u != "" {
-		user = u
+	if envUsr := os.Getenv(userEnvOverride); envUsr != "" {
+		usr = envUsr
 	}
-	return user
+	return usr
 }
 
 func trim(id string) string {
 	return strings.TrimSpace(strings.ReplaceAll(id, "-", ""))
 }
 
-func bootstrap(name, user string) secrets.Text {
+func bootstrap(name, user string) *conceal.Text {
 	token, err := uuid.GenerateUUID()
 	if err != nil {
 		panic(err)
 	}
 
-	if err := keyring.Set(name, user, token); err != nil {
+	if err = keyring.Set(name, user, token); err != nil {
 		panic(err)
 	}
-	return secrets.New(token)
+	return conceal.New(token)
 }
 
 // Init will acquire the secret that envy uses to encrypt values from the OS
 // keyring provider.
-func Init(name string) secrets.Text {
-	user := user()
-	token, err := keyring.Get(name, user)
+func Init(name string) *conceal.Text {
+	usr := user()
+	token, err := keyring.Get(name, usr)
 
 	switch {
 	case err == keyring.ErrNotFound:
-		return bootstrap(name, user)
+		return bootstrap(name, usr)
 	case err != nil:
 		panic(err)
 	default:
-		return secrets.New(token)
+		return conceal.New(token)
 	}
 }

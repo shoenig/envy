@@ -57,7 +57,7 @@ func (lc listCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interfac
 	}
 
 	for _, ns := range namespaces {
-		lc.writer.Directf("%s", ns)
+		lc.writer.Printf("%s", ns)
 	}
 
 	return subcommands.ExitSuccess

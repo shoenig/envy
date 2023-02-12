@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/subcommands"
 	"github.com/pkg/errors"
-	"github.com/shoenig/test/must"
 	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
+	"github.com/shoenig/test/must"
 )
 
 func TestListCmd_Ops(t *testing.T) {

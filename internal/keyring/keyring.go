@@ -6,33 +6,33 @@ import (
 	"crypto/rand"
 
 	"github.com/shoenig/envy/internal/safe"
-	"github.com/shoenig/secrets"
+	"github.com/shoenig/go-conceal"
 )
 
 // A Ring is used to encrypt and decrypt secrets.
 //
 //go:generate go run github.com/gojuno/minimock/v3/cmd/minimock@v3.0.10 -g -i Ring -s _mock.go
 type Ring interface {
-	Encrypt(secrets.Text) safe.Encrypted
-	Decrypt(safe.Encrypted) secrets.Text
+	Encrypt(*conceal.Text) safe.Encrypted
+	Decrypt(safe.Encrypted) *conceal.Text
 }
 
 type ring struct {
-	key secrets.Bytes
+	key *conceal.Bytes
 }
 
-func New(key secrets.Text) Ring {
+func New(key *conceal.Text) Ring {
 	return &ring{
 		key: uuidToLen32(key),
 	}
 }
 
-func uuidToLen32(id secrets.Text) secrets.Bytes {
-	return secrets.NewBytes([]byte(trim(id.Secret())))
+func uuidToLen32(id *conceal.Text) *conceal.Bytes {
+	return conceal.NewBytes([]byte(trim(id.Unveil())))
 }
 
-func (r *ring) Encrypt(s secrets.Text) safe.Encrypted {
-	bCipher, err := aes.NewCipher(r.key.Secret())
+func (r *ring) Encrypt(s *conceal.Text) safe.Encrypted {
+	bCipher, err := aes.NewCipher(r.key.Unveil())
 	if err != nil {
 		panic(err)
 	}
@@ -43,15 +43,15 @@ func (r *ring) Encrypt(s secrets.Text) safe.Encrypted {
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
-	if _, err := rand.Read(nonce); err != nil {
+	if _, err = rand.Read(nonce); err != nil {
 		panic(err)
 	}
 
-	return safe.Encrypted(gcm.Seal(nonce, nonce, []byte(s.Secret()), nil))
+	return safe.Encrypted(gcm.Seal(nonce, nonce, []byte(s.Unveil()), nil))
 }
 
-func (r *ring) Decrypt(s safe.Encrypted) secrets.Text {
-	bCipher, err := aes.NewCipher(r.key.Secret())
+func (r *ring) Decrypt(s safe.Encrypted) *conceal.Text {
+	bCipher, err := aes.NewCipher(r.key.Unveil())
 	if err != nil {
 		panic(err)
 	}
@@ -67,5 +67,5 @@ func (r *ring) Decrypt(s safe.Encrypted) secrets.Text {
 		panic(err)
 	}
 
-	return secrets.New(string(plainText))
+	return conceal.New(string(plainText))
 }

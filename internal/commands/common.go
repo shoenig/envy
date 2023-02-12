@@ -2,18 +2,21 @@ package commands
 
 import (
 	"flag"
+	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
+	"github.com/hashicorp/go-set"
 	"github.com/pkg/errors"
 	"github.com/shoenig/envy/internal/keyring"
 	"github.com/shoenig/envy/internal/safe"
+	"github.com/shoenig/go-conceal"
 	"github.com/shoenig/regexplus"
-	"github.com/shoenig/secrets"
 )
 
 var (
-	argRe       = regexp.MustCompile(`^(?P<key>[\w]+)=(?P<secret>.+)$`)
+	argRe       = regexp.MustCompile(`^(?P<key>\w+)=(?P<secret>.+)$`)
 	namespaceRe = regexp.MustCompile(`^[-:/\w]+$`)
 )
 
@@ -25,7 +28,8 @@ func checkName(namespace string) error {
 }
 
 type Extractor interface {
-	Namespace(args []interface{}) (*safe.Namespace, error)
+	PreProcess(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error)
+	Namespace(vars *set.HashSet[*conceal.Text, int]) (*safe.Namespace, error)
 }
 
 type extractor struct {
@@ -38,44 +42,44 @@ func newExtractor(ring keyring.Ring) Extractor {
 	}
 }
 
-func (e *extractor) Namespace(args []interface{}) (*safe.Namespace, error) {
-	_, namespace, argv, err := extract(args)
+// PreProcess returns
+// - the namespace
+// - the set of keys to be removed
+// - the set of key/values to be added
+// - any error
+func (e *extractor) PreProcess(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error) {
+	if len(args) < 2 {
+		return "", nil, nil, fmt.Errorf("requires at least 2 arguments (namespace, <key,...>)")
+	}
+	ns := args[0]
+	rm := set.New[string](4)
+	add := set.NewHashSet[*conceal.Text, int](8)
+	for i := 1; i < len(args); i++ {
+		s := args[i]
+		switch {
+		case strings.HasPrefix(s, "-"):
+			rm.Insert(strings.TrimPrefix(s, "-"))
+		case strings.Contains(s, "="):
+			add.Insert(conceal.New(s))
+		default:
+			return "", nil, nil, fmt.Errorf("argument must start with '-' or contain '='")
+		}
+	}
+	return ns, rm, add, nil
+}
+
+func (e *extractor) Namespace(vars *set.HashSet[*conceal.Text, int]) (*safe.Namespace, error) {
+	content, err := e.process(vars.Slice())
 	if err != nil {
 		return nil, err
 	}
-
-	content, err := e.process(argv)
-	if err != nil {
-		return nil, err
-	}
-
 	return &safe.Namespace{
-		Name:    namespace,
+		Name:    "",
 		Content: content,
 	}, nil
 }
 
-func extract(args []interface{}) (string, string, []secrets.Text, error) {
-	arguments := make([]secrets.Text, 0)
-	for _, arg := range args[0].([]string) {
-		arguments = append(arguments, secrets.New(arg))
-	}
-
-	if len(arguments) < 2 {
-		return "", "", nil, errors.New("not enough arguments")
-	}
-
-	command := arguments[0].Secret()
-	namespace := arguments[1].Secret()
-
-	if err := checkName(namespace); err != nil {
-		return "", "", nil, err
-	}
-
-	return command, namespace, arguments[2:], nil
-}
-
-func (e *extractor) process(args []secrets.Text) (map[string]safe.Encrypted, error) {
+func (e *extractor) process(args []*conceal.Text) (map[string]safe.Encrypted, error) {
 	content := make(map[string]safe.Encrypted, len(args))
 	for _, kv := range args {
 		if key, secret, err := e.encryptEnvVar(kv); err != nil {
@@ -87,16 +91,16 @@ func (e *extractor) process(args []secrets.Text) (map[string]safe.Encrypted, err
 	return content, nil
 }
 
-func (e *extractor) encryptEnvVar(kv secrets.Text) (string, safe.Encrypted, error) {
-	m := regexplus.FindNamedSubmatches(argRe, kv.Secret())
+func (e *extractor) encryptEnvVar(kv *conceal.Text) (string, safe.Encrypted, error) {
+	m := regexplus.FindNamedSubmatches(argRe, kv.Unveil())
 	if len(m) == 2 {
-		s := e.encrypt(secrets.New(m["secret"]))
+		s := e.encrypt(conceal.New(m["secret"]))
 		return m["key"], s, nil
 	}
 	return "", nil, errors.New("malformed environment variable pair")
 }
 
-func (e *extractor) encrypt(s secrets.Text) safe.Encrypted {
+func (e *extractor) encrypt(s *conceal.Text) safe.Encrypted {
 	return e.ring.Encrypt(s)
 }
 

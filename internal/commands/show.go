@@ -15,7 +15,7 @@ import (
 const (
 	showCmdName     = "show"
 	showCmdSynopsis = "Show environment variable(s) in namespace."
-	showCmdUsage    = "show [--decrypt] [namespace]"
+	showCmdUsage    = "show [--decrypt] [--rm] [namespace]"
 
 	flagDecrypt = "decrypt"
 )
@@ -74,9 +74,9 @@ func (sc showCmd) Execute(ctx context.Context, fs *flag.FlagSet, _ ...interface{
 		if decrypt {
 			value := ns.Content[key]
 			secret := sc.ring.Decrypt(value)
-			sc.writer.Directf("%s=%s", key, secret.Secret())
+			sc.writer.Printf("%s=%s", key, secret.Unveil())
 		} else {
-			sc.writer.Directf("%s", key)
+			sc.writer.Printf("%s", key)
 		}
 	}
 

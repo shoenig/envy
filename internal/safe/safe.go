@@ -6,8 +6,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/go-set"
 	"github.com/pkg/errors"
 	"go.etcd.io/bbolt"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -26,7 +28,7 @@ func Path(dbFile string) (string, error) {
 	}
 
 	dir := filepath.Join(configs, "envy")
-	if err := os.MkdirAll(dir, 0700); err != nil {
+	if err = os.MkdirAll(dir, 0700); err != nil {
 		return "", errors.Wrap(err, "unable to not create config directory")
 	}
 
@@ -38,8 +40,8 @@ func Path(dbFile string) (string, error) {
 //go:generate go run github.com/gojuno/minimock/v3/cmd/minimock@v3.0.10 -g -i Box -s _mock.go
 type Box interface {
 	Set(*Namespace) error
+	Delete(string, *set.Set[string]) error
 	Purge(string) error
-	Update(*Namespace) error
 	Get(string) (*Namespace, error)
 	List() ([]string, error)
 }
@@ -114,12 +116,6 @@ func put(bkt *bbolt.Bucket, ns *Namespace) error {
 	return nil
 }
 
-func wipe(bkt *bbolt.Bucket, namespace string) error {
-	return bkt.ForEach(func(k, _ []byte) error {
-		return bkt.Delete(k)
-	})
-}
-
 // Purge will delete the namespace, including any existing content.
 func (b *box) Purge(namespace string) error {
 	defer b.close(b.open())
@@ -129,8 +125,8 @@ func (b *box) Purge(namespace string) error {
 	})
 }
 
-// Set will set the contents of ns, eliminating or overwriting anything that
-// existed in that namespace before.
+// Set will amend the content of ns. Any overlapping pre-existing values will be
+// overwritten.
 func (b *box) Set(ns *Namespace) error {
 	defer b.close(b.open())
 
@@ -139,31 +135,27 @@ func (b *box) Set(ns *Namespace) error {
 		if err != nil {
 			return err
 		}
-		if err := wipe(bkt, ns.Name); err != nil {
-			return err
-		}
 		return put(bkt, ns)
 	})
 }
 
-// Update will set the contents of ns, overwriting anything that existed in that
-// namespace before. Pre-existing non-overlapping values will remain.
-func (b *box) Update(ns *Namespace) error {
+// Delete will remove keys from namespace.
+func (b *box) Delete(namespace string, keys *set.Set[string]) error {
 	defer b.close(b.open())
 
 	return b.database.Update(func(tx *bbolt.Tx) error {
-		bkt, err := bucket(true, tx, ns.Name)
+		bkt, err := bucket(true, tx, namespace)
 		if err != nil {
 			return err
 		}
-		return put(bkt, ns)
-	})
-}
 
-func duplicate(b []byte) []byte {
-	c := make([]byte, len(b))
-	copy(c, b)
-	return c
+		for _, key := range keys.Slice() {
+			if err = bkt.Delete([]byte(key)); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // Get will return the contents of namespace.
@@ -177,8 +169,8 @@ func (b *box) Get(namespace string) (*Namespace, error) {
 			return err
 		}
 
-		if err := bkt.ForEach(func(k []byte, v []byte) error {
-			content[string(k)] = Encrypted(duplicate(v))
+		if err = bkt.ForEach(func(k []byte, v []byte) error {
+			content[string(k)] = Encrypted(slices.Clone(v))
 			return nil
 		}); err != nil {
 			return err

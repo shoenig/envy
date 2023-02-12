@@ -5,6 +5,7 @@ import (
 	"flag"
 
 	"github.com/google/subcommands"
+	"github.com/hashicorp/go-set"
 	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
@@ -42,27 +43,48 @@ func (sc setCmd) Usage() string {
 	return setCmdUsage
 }
 
-func (sc setCmd) SetFlags(set *flag.FlagSet) {
-	// no flags when setting environment
+func (sc setCmd) SetFlags(fs *flag.FlagSet) {
 }
 
-func (sc setCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
-	ns, err := sc.ex.Namespace(args)
+func (sc setCmd) Execute(ctx context.Context, fs *flag.FlagSet, _ ...any) subcommands.ExitStatus {
+	namespace, remove, add, err := sc.ex.PreProcess(fs.Args())
 	if err != nil {
 		sc.writer.Errorf("unable to parse args: %v", err)
 		return subcommands.ExitUsageError
 	}
 
-	if len(ns.Content) == 0 {
-		sc.writer.Errorf("use 'purge' to remove namespace")
+	if err = checkName(namespace); err != nil {
+		sc.writer.Errorf("could not set namespace: %v", err)
 		return subcommands.ExitUsageError
 	}
 
-	if err := sc.box.Set(ns); err != nil {
-		sc.writer.Errorf("unable to update namespace: %v", err)
+	if err = sc.rm(namespace, remove); err != nil {
+		sc.writer.Errorf("unable to remove variables: %v", err)
 		return subcommands.ExitFailure
 	}
 
-	sc.writer.Directf("stored %d items in %q", len(ns.Content), ns.Name)
+	n, err := sc.ex.Namespace(add)
+	if err != nil {
+		sc.writer.Errorf("unable to parse args: %v", err)
+		return subcommands.ExitUsageError
+	}
+	n.Name = namespace
+
+	if err = sc.set(n); err != nil {
+		sc.writer.Errorf("unable to set variables: %v", err)
+		return subcommands.ExitFailure
+	}
+
 	return subcommands.ExitSuccess
+}
+
+func (sc setCmd) rm(namespace string, keys *set.Set[string]) error {
+	if keys.Empty() {
+		return nil
+	}
+	return sc.box.Delete(namespace, keys)
+}
+
+func (sc setCmd) set(ns *safe.Namespace) error {
+	return sc.box.Set(ns)
 }
