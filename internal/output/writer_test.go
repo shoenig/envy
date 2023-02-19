@@ -11,7 +11,7 @@ func TestWriter_Directf(t *testing.T) {
 	var a, b bytes.Buffer
 
 	w := New(&a, &b)
-	w.Directf("foo: %d", 42)
+	w.Printf("foo: %d", 42)
 	must.Eq(t, "foo: 42\n", a.String())
 	must.Eq(t, "", b.String())
 }

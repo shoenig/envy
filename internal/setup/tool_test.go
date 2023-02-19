@@ -1,13 +1,12 @@
 package setup
 
 import (
-	"github.com/shoenig/test/must"
-	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/zalando/go-keyring"
 	"github.com/shoenig/envy/internal/output"
+	"github.com/shoenig/test/must"
+	"github.com/zalando/go-keyring"
 )
 
 func init() {
@@ -16,7 +15,7 @@ func init() {
 }
 
 func newDBFile(t *testing.T) string {
-	f, err := ioutil.TempFile("", "tool-")
+	f, err := os.CreateTemp("", "tool-")
 	must.NoError(t, err)
 	err = f.Close()
 	must.NoError(t, err)

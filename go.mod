@@ -1,18 +1,20 @@
 module github.com/shoenig/envy
 
-go 1.19
+go 1.20
 
 require (
 	github.com/gojuno/minimock/v3 v3.0.10
 	github.com/google/subcommands v1.2.0
+	github.com/hashicorp/go-set v0.1.9
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
+	github.com/shoenig/go-conceal v0.4.1
 	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
-	github.com/shoenig/secrets v0.3.0
 	github.com/shoenig/test v0.6.1
 	github.com/zalando/go-keyring v0.2.2
 	go.etcd.io/bbolt v1.3.7
+	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6
 )
 
 require (

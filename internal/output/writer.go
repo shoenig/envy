@@ -6,7 +6,7 @@ import (
 )
 
 type Writer interface {
-	Directf(format string, args ...interface{})
+	Printf(format string, args ...interface{})
 	Errorf(format string, args ...interface{})
 }
 
@@ -29,7 +29,7 @@ type writer struct {
 	traces  bool
 }
 
-func (w *writer) Directf(format string, args ...interface{}) {
+func (w *writer) Printf(format string, args ...interface{}) {
 	tweaked := format + "\n"
 	s := fmt.Sprintf(tweaked, args...)
 	w.write(s)

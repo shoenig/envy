@@ -8,11 +8,18 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
+	"github.com/hashicorp/go-set"
 )
 
 // BoxMock implements Box
 type BoxMock struct {
 	t minimock.Tester
+
+	funcDelete          func(s1 string, pp1 *set.Set[string]) (err error)
+	inspectFuncDelete   func(s1 string, pp1 *set.Set[string])
+	afterDeleteCounter  uint64
+	beforeDeleteCounter uint64
+	DeleteMock          mBoxMockDelete
 
 	funcGet          func(s1 string) (np1 *Namespace, err error)
 	inspectFuncGet   func(s1 string)
@@ -37,12 +44,6 @@ type BoxMock struct {
 	afterSetCounter  uint64
 	beforeSetCounter uint64
 	SetMock          mBoxMockSet
-
-	funcUpdate          func(np1 *Namespace) (err error)
-	inspectFuncUpdate   func(np1 *Namespace)
-	afterUpdateCounter  uint64
-	beforeUpdateCounter uint64
-	UpdateMock          mBoxMockUpdate
 }
 
 // NewBoxMock returns a mock for Box
@@ -51,6 +52,9 @@ func NewBoxMock(t minimock.Tester) *BoxMock {
 	if controller, ok := t.(minimock.MockController); ok {
 		controller.RegisterMocker(m)
 	}
+
+	m.DeleteMock = mBoxMockDelete{mock: m}
+	m.DeleteMock.callArgs = []*BoxMockDeleteParams{}
 
 	m.GetMock = mBoxMockGet{mock: m}
 	m.GetMock.callArgs = []*BoxMockGetParams{}
@@ -63,10 +67,223 @@ func NewBoxMock(t minimock.Tester) *BoxMock {
 	m.SetMock = mBoxMockSet{mock: m}
 	m.SetMock.callArgs = []*BoxMockSetParams{}
 
-	m.UpdateMock = mBoxMockUpdate{mock: m}
-	m.UpdateMock.callArgs = []*BoxMockUpdateParams{}
-
 	return m
+}
+
+type mBoxMockDelete struct {
+	mock               *BoxMock
+	defaultExpectation *BoxMockDeleteExpectation
+	expectations       []*BoxMockDeleteExpectation
+
+	callArgs []*BoxMockDeleteParams
+	mutex    sync.RWMutex
+}
+
+// BoxMockDeleteExpectation specifies expectation struct of the Box.Delete
+type BoxMockDeleteExpectation struct {
+	mock    *BoxMock
+	params  *BoxMockDeleteParams
+	results *BoxMockDeleteResults
+	Counter uint64
+}
+
+// BoxMockDeleteParams contains parameters of the Box.Delete
+type BoxMockDeleteParams struct {
+	s1  string
+	pp1 *set.Set[string]
+}
+
+// BoxMockDeleteResults contains results of the Box.Delete
+type BoxMockDeleteResults struct {
+	err error
+}
+
+// Expect sets up expected params for Box.Delete
+func (mmDelete *mBoxMockDelete) Expect(s1 string, pp1 *set.Set[string]) *mBoxMockDelete {
+	if mmDelete.mock.funcDelete != nil {
+		mmDelete.mock.t.Fatalf("BoxMock.Delete mock is already set by Set")
+	}
+
+	if mmDelete.defaultExpectation == nil {
+		mmDelete.defaultExpectation = &BoxMockDeleteExpectation{}
+	}
+
+	mmDelete.defaultExpectation.params = &BoxMockDeleteParams{s1, pp1}
+	for _, e := range mmDelete.expectations {
+		if minimock.Equal(e.params, mmDelete.defaultExpectation.params) {
+			mmDelete.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmDelete.defaultExpectation.params)
+		}
+	}
+
+	return mmDelete
+}
+
+// Inspect accepts an inspector function that has same arguments as the Box.Delete
+func (mmDelete *mBoxMockDelete) Inspect(f func(s1 string, pp1 *set.Set[string])) *mBoxMockDelete {
+	if mmDelete.mock.inspectFuncDelete != nil {
+		mmDelete.mock.t.Fatalf("Inspect function is already set for BoxMock.Delete")
+	}
+
+	mmDelete.mock.inspectFuncDelete = f
+
+	return mmDelete
+}
+
+// Return sets up results that will be returned by Box.Delete
+func (mmDelete *mBoxMockDelete) Return(err error) *BoxMock {
+	if mmDelete.mock.funcDelete != nil {
+		mmDelete.mock.t.Fatalf("BoxMock.Delete mock is already set by Set")
+	}
+
+	if mmDelete.defaultExpectation == nil {
+		mmDelete.defaultExpectation = &BoxMockDeleteExpectation{mock: mmDelete.mock}
+	}
+	mmDelete.defaultExpectation.results = &BoxMockDeleteResults{err}
+	return mmDelete.mock
+}
+
+// Set uses given function f to mock the Box.Delete method
+func (mmDelete *mBoxMockDelete) Set(f func(s1 string, pp1 *set.Set[string]) (err error)) *BoxMock {
+	if mmDelete.defaultExpectation != nil {
+		mmDelete.mock.t.Fatalf("Default expectation is already set for the Box.Delete method")
+	}
+
+	if len(mmDelete.expectations) > 0 {
+		mmDelete.mock.t.Fatalf("Some expectations are already set for the Box.Delete method")
+	}
+
+	mmDelete.mock.funcDelete = f
+	return mmDelete.mock
+}
+
+// When sets expectation for the Box.Delete which will trigger the result defined by the following
+// Then helper
+func (mmDelete *mBoxMockDelete) When(s1 string, pp1 *set.Set[string]) *BoxMockDeleteExpectation {
+	if mmDelete.mock.funcDelete != nil {
+		mmDelete.mock.t.Fatalf("BoxMock.Delete mock is already set by Set")
+	}
+
+	expectation := &BoxMockDeleteExpectation{
+		mock:   mmDelete.mock,
+		params: &BoxMockDeleteParams{s1, pp1},
+	}
+	mmDelete.expectations = append(mmDelete.expectations, expectation)
+	return expectation
+}
+
+// Then sets up Box.Delete return parameters for the expectation previously defined by the When method
+func (e *BoxMockDeleteExpectation) Then(err error) *BoxMock {
+	e.results = &BoxMockDeleteResults{err}
+	return e.mock
+}
+
+// Delete implements Box
+func (mmDelete *BoxMock) Delete(s1 string, pp1 *set.Set[string]) (err error) {
+	mm_atomic.AddUint64(&mmDelete.beforeDeleteCounter, 1)
+	defer mm_atomic.AddUint64(&mmDelete.afterDeleteCounter, 1)
+
+	if mmDelete.inspectFuncDelete != nil {
+		mmDelete.inspectFuncDelete(s1, pp1)
+	}
+
+	mm_params := &BoxMockDeleteParams{s1, pp1}
+
+	// Record call args
+	mmDelete.DeleteMock.mutex.Lock()
+	mmDelete.DeleteMock.callArgs = append(mmDelete.DeleteMock.callArgs, mm_params)
+	mmDelete.DeleteMock.mutex.Unlock()
+
+	for _, e := range mmDelete.DeleteMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmDelete.DeleteMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmDelete.DeleteMock.defaultExpectation.Counter, 1)
+		mm_want := mmDelete.DeleteMock.defaultExpectation.params
+		mm_got := BoxMockDeleteParams{s1, pp1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmDelete.t.Errorf("BoxMock.Delete got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmDelete.DeleteMock.defaultExpectation.results
+		if mm_results == nil {
+			mmDelete.t.Fatal("No results are set for the BoxMock.Delete")
+		}
+		return (*mm_results).err
+	}
+	if mmDelete.funcDelete != nil {
+		return mmDelete.funcDelete(s1, pp1)
+	}
+	mmDelete.t.Fatalf("Unexpected call to BoxMock.Delete. %v %v", s1, pp1)
+	return
+}
+
+// DeleteAfterCounter returns a count of finished BoxMock.Delete invocations
+func (mmDelete *BoxMock) DeleteAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmDelete.afterDeleteCounter)
+}
+
+// DeleteBeforeCounter returns a count of BoxMock.Delete invocations
+func (mmDelete *BoxMock) DeleteBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmDelete.beforeDeleteCounter)
+}
+
+// Calls returns a list of arguments used in each call to BoxMock.Delete.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmDelete *mBoxMockDelete) Calls() []*BoxMockDeleteParams {
+	mmDelete.mutex.RLock()
+
+	argCopy := make([]*BoxMockDeleteParams, len(mmDelete.callArgs))
+	copy(argCopy, mmDelete.callArgs)
+
+	mmDelete.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockDeleteDone returns true if the count of the Delete invocations corresponds
+// the number of defined expectations
+func (m *BoxMock) MinimockDeleteDone() bool {
+	for _, e := range m.DeleteMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.DeleteMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcDelete != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockDeleteInspect logs each unmet expectation
+func (m *BoxMock) MinimockDeleteInspect() {
+	for _, e := range m.DeleteMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to BoxMock.Delete with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.DeleteMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
+		if m.DeleteMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to BoxMock.Delete")
+		} else {
+			m.t.Errorf("Expected call to BoxMock.Delete with params: %#v", *m.DeleteMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcDelete != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
+		m.t.Error("Expected call to BoxMock.Delete")
+	}
 }
 
 type mBoxMockGet struct {
@@ -859,224 +1076,11 @@ func (m *BoxMock) MinimockSetInspect() {
 	}
 }
 
-type mBoxMockUpdate struct {
-	mock               *BoxMock
-	defaultExpectation *BoxMockUpdateExpectation
-	expectations       []*BoxMockUpdateExpectation
-
-	callArgs []*BoxMockUpdateParams
-	mutex    sync.RWMutex
-}
-
-// BoxMockUpdateExpectation specifies expectation struct of the Box.Update
-type BoxMockUpdateExpectation struct {
-	mock    *BoxMock
-	params  *BoxMockUpdateParams
-	results *BoxMockUpdateResults
-	Counter uint64
-}
-
-// BoxMockUpdateParams contains parameters of the Box.Update
-type BoxMockUpdateParams struct {
-	np1 *Namespace
-}
-
-// BoxMockUpdateResults contains results of the Box.Update
-type BoxMockUpdateResults struct {
-	err error
-}
-
-// Expect sets up expected params for Box.Update
-func (mmUpdate *mBoxMockUpdate) Expect(np1 *Namespace) *mBoxMockUpdate {
-	if mmUpdate.mock.funcUpdate != nil {
-		mmUpdate.mock.t.Fatalf("BoxMock.Update mock is already set by Set")
-	}
-
-	if mmUpdate.defaultExpectation == nil {
-		mmUpdate.defaultExpectation = &BoxMockUpdateExpectation{}
-	}
-
-	mmUpdate.defaultExpectation.params = &BoxMockUpdateParams{np1}
-	for _, e := range mmUpdate.expectations {
-		if minimock.Equal(e.params, mmUpdate.defaultExpectation.params) {
-			mmUpdate.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmUpdate.defaultExpectation.params)
-		}
-	}
-
-	return mmUpdate
-}
-
-// Inspect accepts an inspector function that has same arguments as the Box.Update
-func (mmUpdate *mBoxMockUpdate) Inspect(f func(np1 *Namespace)) *mBoxMockUpdate {
-	if mmUpdate.mock.inspectFuncUpdate != nil {
-		mmUpdate.mock.t.Fatalf("Inspect function is already set for BoxMock.Update")
-	}
-
-	mmUpdate.mock.inspectFuncUpdate = f
-
-	return mmUpdate
-}
-
-// Return sets up results that will be returned by Box.Update
-func (mmUpdate *mBoxMockUpdate) Return(err error) *BoxMock {
-	if mmUpdate.mock.funcUpdate != nil {
-		mmUpdate.mock.t.Fatalf("BoxMock.Update mock is already set by Set")
-	}
-
-	if mmUpdate.defaultExpectation == nil {
-		mmUpdate.defaultExpectation = &BoxMockUpdateExpectation{mock: mmUpdate.mock}
-	}
-	mmUpdate.defaultExpectation.results = &BoxMockUpdateResults{err}
-	return mmUpdate.mock
-}
-
-// Set uses given function f to mock the Box.Update method
-func (mmUpdate *mBoxMockUpdate) Set(f func(np1 *Namespace) (err error)) *BoxMock {
-	if mmUpdate.defaultExpectation != nil {
-		mmUpdate.mock.t.Fatalf("Default expectation is already set for the Box.Update method")
-	}
-
-	if len(mmUpdate.expectations) > 0 {
-		mmUpdate.mock.t.Fatalf("Some expectations are already set for the Box.Update method")
-	}
-
-	mmUpdate.mock.funcUpdate = f
-	return mmUpdate.mock
-}
-
-// When sets expectation for the Box.Update which will trigger the result defined by the following
-// Then helper
-func (mmUpdate *mBoxMockUpdate) When(np1 *Namespace) *BoxMockUpdateExpectation {
-	if mmUpdate.mock.funcUpdate != nil {
-		mmUpdate.mock.t.Fatalf("BoxMock.Update mock is already set by Set")
-	}
-
-	expectation := &BoxMockUpdateExpectation{
-		mock:   mmUpdate.mock,
-		params: &BoxMockUpdateParams{np1},
-	}
-	mmUpdate.expectations = append(mmUpdate.expectations, expectation)
-	return expectation
-}
-
-// Then sets up Box.Update return parameters for the expectation previously defined by the When method
-func (e *BoxMockUpdateExpectation) Then(err error) *BoxMock {
-	e.results = &BoxMockUpdateResults{err}
-	return e.mock
-}
-
-// Update implements Box
-func (mmUpdate *BoxMock) Update(np1 *Namespace) (err error) {
-	mm_atomic.AddUint64(&mmUpdate.beforeUpdateCounter, 1)
-	defer mm_atomic.AddUint64(&mmUpdate.afterUpdateCounter, 1)
-
-	if mmUpdate.inspectFuncUpdate != nil {
-		mmUpdate.inspectFuncUpdate(np1)
-	}
-
-	mm_params := &BoxMockUpdateParams{np1}
-
-	// Record call args
-	mmUpdate.UpdateMock.mutex.Lock()
-	mmUpdate.UpdateMock.callArgs = append(mmUpdate.UpdateMock.callArgs, mm_params)
-	mmUpdate.UpdateMock.mutex.Unlock()
-
-	for _, e := range mmUpdate.UpdateMock.expectations {
-		if minimock.Equal(e.params, mm_params) {
-			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.err
-		}
-	}
-
-	if mmUpdate.UpdateMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmUpdate.UpdateMock.defaultExpectation.Counter, 1)
-		mm_want := mmUpdate.UpdateMock.defaultExpectation.params
-		mm_got := BoxMockUpdateParams{np1}
-		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmUpdate.t.Errorf("BoxMock.Update got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
-		}
-
-		mm_results := mmUpdate.UpdateMock.defaultExpectation.results
-		if mm_results == nil {
-			mmUpdate.t.Fatal("No results are set for the BoxMock.Update")
-		}
-		return (*mm_results).err
-	}
-	if mmUpdate.funcUpdate != nil {
-		return mmUpdate.funcUpdate(np1)
-	}
-	mmUpdate.t.Fatalf("Unexpected call to BoxMock.Update. %v", np1)
-	return
-}
-
-// UpdateAfterCounter returns a count of finished BoxMock.Update invocations
-func (mmUpdate *BoxMock) UpdateAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmUpdate.afterUpdateCounter)
-}
-
-// UpdateBeforeCounter returns a count of BoxMock.Update invocations
-func (mmUpdate *BoxMock) UpdateBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmUpdate.beforeUpdateCounter)
-}
-
-// Calls returns a list of arguments used in each call to BoxMock.Update.
-// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmUpdate *mBoxMockUpdate) Calls() []*BoxMockUpdateParams {
-	mmUpdate.mutex.RLock()
-
-	argCopy := make([]*BoxMockUpdateParams, len(mmUpdate.callArgs))
-	copy(argCopy, mmUpdate.callArgs)
-
-	mmUpdate.mutex.RUnlock()
-
-	return argCopy
-}
-
-// MinimockUpdateDone returns true if the count of the Update invocations corresponds
-// the number of defined expectations
-func (m *BoxMock) MinimockUpdateDone() bool {
-	for _, e := range m.UpdateMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.UpdateMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterUpdateCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcUpdate != nil && mm_atomic.LoadUint64(&m.afterUpdateCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockUpdateInspect logs each unmet expectation
-func (m *BoxMock) MinimockUpdateInspect() {
-	for _, e := range m.UpdateMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to BoxMock.Update with params: %#v", *e.params)
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.UpdateMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterUpdateCounter) < 1 {
-		if m.UpdateMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to BoxMock.Update")
-		} else {
-			m.t.Errorf("Expected call to BoxMock.Update with params: %#v", *m.UpdateMock.defaultExpectation.params)
-		}
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcUpdate != nil && mm_atomic.LoadUint64(&m.afterUpdateCounter) < 1 {
-		m.t.Error("Expected call to BoxMock.Update")
-	}
-}
-
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *BoxMock) MinimockFinish() {
 	if !m.minimockDone() {
+		m.MinimockDeleteInspect()
+
 		m.MinimockGetInspect()
 
 		m.MinimockListInspect()
@@ -1084,8 +1088,6 @@ func (m *BoxMock) MinimockFinish() {
 		m.MinimockPurgeInspect()
 
 		m.MinimockSetInspect()
-
-		m.MinimockUpdateInspect()
 		m.t.FailNow()
 	}
 }
@@ -1109,9 +1111,9 @@ func (m *BoxMock) MinimockWait(timeout mm_time.Duration) {
 func (m *BoxMock) minimockDone() bool {
 	done := true
 	return done &&
+		m.MinimockDeleteDone() &&
 		m.MinimockGetDone() &&
 		m.MinimockListDone() &&
 		m.MinimockPurgeDone() &&
-		m.MinimockSetDone() &&
-		m.MinimockUpdateDone()
+		m.MinimockSetDone()
 }

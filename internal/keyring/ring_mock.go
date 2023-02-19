@@ -9,21 +9,21 @@ import (
 
 	"github.com/gojuno/minimock/v3"
 	"github.com/shoenig/envy/internal/safe"
-	"github.com/shoenig/secrets"
+	"github.com/shoenig/go-conceal"
 )
 
 // RingMock implements Ring
 type RingMock struct {
 	t minimock.Tester
 
-	funcDecrypt          func(e1 safe.Encrypted) (t1 secrets.Text)
+	funcDecrypt          func(e1 safe.Encrypted) (tp1 *conceal.Text)
 	inspectFuncDecrypt   func(e1 safe.Encrypted)
 	afterDecryptCounter  uint64
 	beforeDecryptCounter uint64
 	DecryptMock          mRingMockDecrypt
 
-	funcEncrypt          func(t1 secrets.Text) (e1 safe.Encrypted)
-	inspectFuncEncrypt   func(t1 secrets.Text)
+	funcEncrypt          func(tp1 *conceal.Text) (e1 safe.Encrypted)
+	inspectFuncEncrypt   func(tp1 *conceal.Text)
 	afterEncryptCounter  uint64
 	beforeEncryptCounter uint64
 	EncryptMock          mRingMockEncrypt
@@ -69,7 +69,7 @@ type RingMockDecryptParams struct {
 
 // RingMockDecryptResults contains results of the Ring.Decrypt
 type RingMockDecryptResults struct {
-	t1 secrets.Text
+	tp1 *conceal.Text
 }
 
 // Expect sets up expected params for Ring.Decrypt
@@ -104,7 +104,7 @@ func (mmDecrypt *mRingMockDecrypt) Inspect(f func(e1 safe.Encrypted)) *mRingMock
 }
 
 // Return sets up results that will be returned by Ring.Decrypt
-func (mmDecrypt *mRingMockDecrypt) Return(t1 secrets.Text) *RingMock {
+func (mmDecrypt *mRingMockDecrypt) Return(tp1 *conceal.Text) *RingMock {
 	if mmDecrypt.mock.funcDecrypt != nil {
 		mmDecrypt.mock.t.Fatalf("RingMock.Decrypt mock is already set by Set")
 	}
@@ -112,12 +112,12 @@ func (mmDecrypt *mRingMockDecrypt) Return(t1 secrets.Text) *RingMock {
 	if mmDecrypt.defaultExpectation == nil {
 		mmDecrypt.defaultExpectation = &RingMockDecryptExpectation{mock: mmDecrypt.mock}
 	}
-	mmDecrypt.defaultExpectation.results = &RingMockDecryptResults{t1}
+	mmDecrypt.defaultExpectation.results = &RingMockDecryptResults{tp1}
 	return mmDecrypt.mock
 }
 
 // Set uses given function f to mock the Ring.Decrypt method
-func (mmDecrypt *mRingMockDecrypt) Set(f func(e1 safe.Encrypted) (t1 secrets.Text)) *RingMock {
+func (mmDecrypt *mRingMockDecrypt) Set(f func(e1 safe.Encrypted) (tp1 *conceal.Text)) *RingMock {
 	if mmDecrypt.defaultExpectation != nil {
 		mmDecrypt.mock.t.Fatalf("Default expectation is already set for the Ring.Decrypt method")
 	}
@@ -146,13 +146,13 @@ func (mmDecrypt *mRingMockDecrypt) When(e1 safe.Encrypted) *RingMockDecryptExpec
 }
 
 // Then sets up Ring.Decrypt return parameters for the expectation previously defined by the When method
-func (e *RingMockDecryptExpectation) Then(t1 secrets.Text) *RingMock {
-	e.results = &RingMockDecryptResults{t1}
+func (e *RingMockDecryptExpectation) Then(tp1 *conceal.Text) *RingMock {
+	e.results = &RingMockDecryptResults{tp1}
 	return e.mock
 }
 
 // Decrypt implements Ring
-func (mmDecrypt *RingMock) Decrypt(e1 safe.Encrypted) (t1 secrets.Text) {
+func (mmDecrypt *RingMock) Decrypt(e1 safe.Encrypted) (tp1 *conceal.Text) {
 	mm_atomic.AddUint64(&mmDecrypt.beforeDecryptCounter, 1)
 	defer mm_atomic.AddUint64(&mmDecrypt.afterDecryptCounter, 1)
 
@@ -170,7 +170,7 @@ func (mmDecrypt *RingMock) Decrypt(e1 safe.Encrypted) (t1 secrets.Text) {
 	for _, e := range mmDecrypt.DecryptMock.expectations {
 		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.t1
+			return e.results.tp1
 		}
 	}
 
@@ -186,7 +186,7 @@ func (mmDecrypt *RingMock) Decrypt(e1 safe.Encrypted) (t1 secrets.Text) {
 		if mm_results == nil {
 			mmDecrypt.t.Fatal("No results are set for the RingMock.Decrypt")
 		}
-		return (*mm_results).t1
+		return (*mm_results).tp1
 	}
 	if mmDecrypt.funcDecrypt != nil {
 		return mmDecrypt.funcDecrypt(e1)
@@ -279,7 +279,7 @@ type RingMockEncryptExpectation struct {
 
 // RingMockEncryptParams contains parameters of the Ring.Encrypt
 type RingMockEncryptParams struct {
-	t1 secrets.Text
+	tp1 *conceal.Text
 }
 
 // RingMockEncryptResults contains results of the Ring.Encrypt
@@ -288,7 +288,7 @@ type RingMockEncryptResults struct {
 }
 
 // Expect sets up expected params for Ring.Encrypt
-func (mmEncrypt *mRingMockEncrypt) Expect(t1 secrets.Text) *mRingMockEncrypt {
+func (mmEncrypt *mRingMockEncrypt) Expect(tp1 *conceal.Text) *mRingMockEncrypt {
 	if mmEncrypt.mock.funcEncrypt != nil {
 		mmEncrypt.mock.t.Fatalf("RingMock.Encrypt mock is already set by Set")
 	}
@@ -297,7 +297,7 @@ func (mmEncrypt *mRingMockEncrypt) Expect(t1 secrets.Text) *mRingMockEncrypt {
 		mmEncrypt.defaultExpectation = &RingMockEncryptExpectation{}
 	}
 
-	mmEncrypt.defaultExpectation.params = &RingMockEncryptParams{t1}
+	mmEncrypt.defaultExpectation.params = &RingMockEncryptParams{tp1}
 	for _, e := range mmEncrypt.expectations {
 		if minimock.Equal(e.params, mmEncrypt.defaultExpectation.params) {
 			mmEncrypt.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmEncrypt.defaultExpectation.params)
@@ -308,7 +308,7 @@ func (mmEncrypt *mRingMockEncrypt) Expect(t1 secrets.Text) *mRingMockEncrypt {
 }
 
 // Inspect accepts an inspector function that has same arguments as the Ring.Encrypt
-func (mmEncrypt *mRingMockEncrypt) Inspect(f func(t1 secrets.Text)) *mRingMockEncrypt {
+func (mmEncrypt *mRingMockEncrypt) Inspect(f func(tp1 *conceal.Text)) *mRingMockEncrypt {
 	if mmEncrypt.mock.inspectFuncEncrypt != nil {
 		mmEncrypt.mock.t.Fatalf("Inspect function is already set for RingMock.Encrypt")
 	}
@@ -332,7 +332,7 @@ func (mmEncrypt *mRingMockEncrypt) Return(e1 safe.Encrypted) *RingMock {
 }
 
 // Set uses given function f to mock the Ring.Encrypt method
-func (mmEncrypt *mRingMockEncrypt) Set(f func(t1 secrets.Text) (e1 safe.Encrypted)) *RingMock {
+func (mmEncrypt *mRingMockEncrypt) Set(f func(tp1 *conceal.Text) (e1 safe.Encrypted)) *RingMock {
 	if mmEncrypt.defaultExpectation != nil {
 		mmEncrypt.mock.t.Fatalf("Default expectation is already set for the Ring.Encrypt method")
 	}
@@ -347,14 +347,14 @@ func (mmEncrypt *mRingMockEncrypt) Set(f func(t1 secrets.Text) (e1 safe.Encrypte
 
 // When sets expectation for the Ring.Encrypt which will trigger the result defined by the following
 // Then helper
-func (mmEncrypt *mRingMockEncrypt) When(t1 secrets.Text) *RingMockEncryptExpectation {
+func (mmEncrypt *mRingMockEncrypt) When(tp1 *conceal.Text) *RingMockEncryptExpectation {
 	if mmEncrypt.mock.funcEncrypt != nil {
 		mmEncrypt.mock.t.Fatalf("RingMock.Encrypt mock is already set by Set")
 	}
 
 	expectation := &RingMockEncryptExpectation{
 		mock:   mmEncrypt.mock,
-		params: &RingMockEncryptParams{t1},
+		params: &RingMockEncryptParams{tp1},
 	}
 	mmEncrypt.expectations = append(mmEncrypt.expectations, expectation)
 	return expectation
@@ -367,15 +367,15 @@ func (e *RingMockEncryptExpectation) Then(e1 safe.Encrypted) *RingMock {
 }
 
 // Encrypt implements Ring
-func (mmEncrypt *RingMock) Encrypt(t1 secrets.Text) (e1 safe.Encrypted) {
+func (mmEncrypt *RingMock) Encrypt(tp1 *conceal.Text) (e1 safe.Encrypted) {
 	mm_atomic.AddUint64(&mmEncrypt.beforeEncryptCounter, 1)
 	defer mm_atomic.AddUint64(&mmEncrypt.afterEncryptCounter, 1)
 
 	if mmEncrypt.inspectFuncEncrypt != nil {
-		mmEncrypt.inspectFuncEncrypt(t1)
+		mmEncrypt.inspectFuncEncrypt(tp1)
 	}
 
-	mm_params := &RingMockEncryptParams{t1}
+	mm_params := &RingMockEncryptParams{tp1}
 
 	// Record call args
 	mmEncrypt.EncryptMock.mutex.Lock()
@@ -392,7 +392,7 @@ func (mmEncrypt *RingMock) Encrypt(t1 secrets.Text) (e1 safe.Encrypted) {
 	if mmEncrypt.EncryptMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmEncrypt.EncryptMock.defaultExpectation.Counter, 1)
 		mm_want := mmEncrypt.EncryptMock.defaultExpectation.params
-		mm_got := RingMockEncryptParams{t1}
+		mm_got := RingMockEncryptParams{tp1}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmEncrypt.t.Errorf("RingMock.Encrypt got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -404,9 +404,9 @@ func (mmEncrypt *RingMock) Encrypt(t1 secrets.Text) (e1 safe.Encrypted) {
 		return (*mm_results).e1
 	}
 	if mmEncrypt.funcEncrypt != nil {
-		return mmEncrypt.funcEncrypt(t1)
+		return mmEncrypt.funcEncrypt(tp1)
 	}
-	mmEncrypt.t.Fatalf("Unexpected call to RingMock.Encrypt. %v", t1)
+	mmEncrypt.t.Fatalf("Unexpected call to RingMock.Encrypt. %v", tp1)
 	return
 }
 

@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"github.com/google/subcommands"
-	"github.com/shoenig/test/must"
 	"github.com/shoenig/envy/internal/keyring"
 	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
-	"github.com/shoenig/secrets"
+	"github.com/shoenig/go-conceal"
+	"github.com/shoenig/test/must"
 )
 
 func TestShowCmd_Ops(t *testing.T) {
@@ -82,8 +82,8 @@ func TestShowCmd_Execute_decrypt(t *testing.T) {
 		},
 	}, nil)
 
-	ring.DecryptMock.When([]byte{2, 2, 2}).Then(secrets.New("passw0rd"))
-	ring.DecryptMock.When([]byte{1, 1, 1}).Then(secrets.New("hunter2"))
+	ring.DecryptMock.When([]byte{2, 2, 2}).Then(conceal.New("passw0rd"))
+	ring.DecryptMock.When([]byte{1, 1, 1}).Then(conceal.New("hunter2"))
 
 	fs, args := setupFlagSet(t, []string{"myNS"})
 	sc.SetFlags(fs)

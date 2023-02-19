@@ -29,7 +29,6 @@ func main() {
 	subs.Register(subs.FlagsCommand(), usageGroup)
 	subs.Register(commands.NewListCmd(tool), envyGroup)
 	subs.Register(commands.NewSetCmd(tool), envyGroup)
-	subs.Register(commands.NewUpdateCmd(tool), envyGroup)
 	subs.Register(commands.NewPurgeCmd(tool), envyGroup)
 	subs.Register(commands.NewShowCmd(tool), envyGroup)
 	subs.Register(commands.NewExecCmd(tool), envyGroup)

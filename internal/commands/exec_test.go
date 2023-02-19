@@ -11,7 +11,7 @@ import (
 	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
-	"github.com/shoenig/secrets"
+	"github.com/shoenig/go-conceal"
 	"github.com/shoenig/test/must"
 )
 
@@ -53,8 +53,8 @@ func TestExecCmd_Execute(t *testing.T) {
 		},
 	}, nil)
 
-	ring.DecryptMock.When(safe.Encrypted{0x1}).Then(secrets.New("passw0rd"))
-	ring.DecryptMock.When(safe.Encrypted{0x2}).Then(secrets.New("hunter2"))
+	ring.DecryptMock.When(safe.Encrypted{0x1}).Then(conceal.New("passw0rd"))
+	ring.DecryptMock.When(safe.Encrypted{0x2}).Then(conceal.New("hunter2"))
 
 	fs, args := setupFlagSet(t, []string{"myNS", "./testing/a.sh"})
 	ec.SetFlags(fs)
@@ -116,8 +116,8 @@ func TestExecCmd_Execute_badCommand(t *testing.T) {
 		},
 	}, nil)
 
-	ring.DecryptMock.When(safe.Encrypted{0x1}).Then(secrets.New("passw0rd"))
-	ring.DecryptMock.When(safe.Encrypted{0x2}).Then(secrets.New("hunter2"))
+	ring.DecryptMock.When(safe.Encrypted{0x1}).Then(conceal.New("passw0rd"))
+	ring.DecryptMock.When(safe.Encrypted{0x2}).Then(conceal.New("hunter2"))
 
 	ec := &execCmd{
 		writer:        w,
