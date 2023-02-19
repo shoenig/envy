@@ -1,6 +1,7 @@
 package keyring
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -49,7 +50,7 @@ func Init(name string) *conceal.Text {
 	token, err := keyring.Get(name, usr)
 
 	switch {
-	case err == keyring.ErrNotFound:
+	case errors.Is(err, keyring.ErrNotFound):
 		return bootstrap(name, usr)
 	case err != nil:
 		panic(err)
