@@ -6,8 +6,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - ubuntu-20.04
           - ubuntu-22.04
           - macos-12
+          - windows-2022
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v3
