@@ -3,7 +3,8 @@ envy
 
 Use `envy` to manage sensitive environment variables when running commands.
 
-![GitHub](https://img.shields.io/github/license/shoenig/envy.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Run CI Tests](https://github.com/shoenig/envy/actions/workflows/ci.yaml/badge.svg)](https://github.com/shoenig/envy/actions/workflows/ci.yaml)
 
 # Project Overview
 
@@ -43,13 +44,13 @@ $ go install github.com/shoenig/envy@latest
 
 ```bash
 Subcommands for envy:
-	exec             Run a command with environment variables from namespace.
-	  use `-insulate` to exclude external environment variables
-	list             List available namespaces.
-	purge            Remove a namespace and all of its environment variables.
-	set              Set/Update/Remove environment variable(s) for namespace.
-	show             Show environment variable(s) in namespace.
-	  use `-decrypt` to include decrypted values
+  exec   Run a command with environment variables from namespace.
+    use `-insulate` to exclude external environment variables
+  list   List available namespaces.
+  purge  Remove a namespace and all of its environment variables.
+  set    Set/Update/Remove environment variable(s) for namespace.
+  show   Show environment variable(s) in namespace.
+    use `-decrypt` to include decrypted values
 ```
 
 #### set a namespace
@@ -108,7 +109,7 @@ AWS_SECRET_ACCESS_KEY
 #### show namespace w/ values
 
 ```bash
-$ envy show --decrypt test
+$ envy show -decrypt test
 AWS_ACCESS_KEY_ID=aaabbbccc
 AWS_SECRET_ACCESS_KEY=233kjsdf309jfsd
 ```
