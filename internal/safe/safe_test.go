@@ -2,7 +2,7 @@ package safe
 
 import (
 	"io/ioutil"
-	"strings"
+	"runtime"
 	"testing"
 
 	"github.com/shoenig/ignore"
@@ -15,7 +15,13 @@ func TestSafe_Path(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
 		p, err := Path("")
 		must.NoError(t, err)
-		must.True(t, strings.HasSuffix(p, "/envy/envy.safe"))
+
+		switch runtime.GOOS {
+		case "windows":
+			must.StrHasSuffix(t, `\envy\envy.safe`, p)
+		default:
+			must.StrHasSuffix(t, "/envy/envy.safe", p)
+		}
 	})
 
 	t.Run("non-default", func(t *testing.T) {
