@@ -44,8 +44,8 @@ func TestShowCmd_Execute(t *testing.T) {
 	box.GetMock.Expect("myNS").Return(&safe.Namespace{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
-			"foo": safe.Encrypted{1, 1, 1},
-			"bar": safe.Encrypted{2, 2, 2},
+			"foo": {1, 1, 1},
+			"bar": {2, 2, 2},
 		},
 	}, nil)
 
@@ -77,8 +77,8 @@ func TestShowCmd_Execute_decrypt(t *testing.T) {
 	box.GetMock.Expect("myNS").Return(&safe.Namespace{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
-			"foo": safe.Encrypted{1, 1, 1},
-			"bar": safe.Encrypted{2, 2, 2},
+			"foo": {1, 1, 1},
+			"bar": {2, 2, 2},
 		},
 	}, nil)
 
@@ -98,7 +98,6 @@ func TestShowCmd_Execute_decrypt(t *testing.T) {
 }
 
 func TestShowCmd_Execute_noNS(t *testing.T) {
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 

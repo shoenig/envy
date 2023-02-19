@@ -26,7 +26,6 @@ func TestListCmd_Ops(t *testing.T) {
 }
 
 func TestListCmd_Execute(t *testing.T) {
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -53,7 +52,6 @@ func TestListCmd_Execute(t *testing.T) {
 }
 
 func TestListCmd_Execute_listFails(t *testing.T) {
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -78,7 +76,6 @@ func TestListCmd_Execute_listFails(t *testing.T) {
 }
 
 func TestListCmd_Execute_extraArgs(t *testing.T) {
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 

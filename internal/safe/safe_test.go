@@ -1,7 +1,7 @@
 package safe
 
 import (
-	"io/ioutil"
+	"os"
 	"runtime"
 	"testing"
 
@@ -32,7 +32,7 @@ func TestSafe_Path(t *testing.T) {
 }
 
 func newFile(t *testing.T) string {
-	f, err := ioutil.TempFile("", "-envoy.safe")
+	f, err := os.CreateTemp("", "-envoy.safe")
 	must.NoError(t, err)
 	defer ignore.Close(f)
 	return f.Name()
@@ -93,6 +93,7 @@ func TestSafe_Set(t *testing.T) {
 			"key3": []byte("value4"),
 		},
 	})
+	must.NoError(t, err)
 
 	ns1, err = b.Get("ns1")
 	must.NoError(t, err)

@@ -16,7 +16,6 @@ import (
 )
 
 func TestSetCmd_Ops(t *testing.T) {
-
 	db := newDBFile(t)
 	defer cleanupFile(t, db)
 
@@ -29,7 +28,6 @@ func TestSetCmd_Ops(t *testing.T) {
 }
 
 func TestSetCmd_Execute(t *testing.T) {
-
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 

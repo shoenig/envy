@@ -1,6 +1,14 @@
 name: Run CI Tests
 on: [push]
 jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.51.1
+          skip-cache: true
   run-tests:
     strategy:
       fail-fast: false
