@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/google/subcommands"
@@ -14,6 +15,13 @@ import (
 	"github.com/shoenig/go-conceal"
 	"github.com/shoenig/test/must"
 )
+
+func skipOS(t *testing.T) {
+	switch runtime.GOOS {
+	case "windows":
+		t.Skip("skipping on windows")
+	}
+}
 
 func TestExecCmd_Ops(t *testing.T) {
 	db := newDBFile(t)
@@ -28,6 +36,8 @@ func TestExecCmd_Ops(t *testing.T) {
 }
 
 func TestExecCmd_Execute(t *testing.T) {
+	skipOS(t)
+
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
@@ -134,7 +144,13 @@ func TestExecCmd_Execute_badCommand(t *testing.T) {
 
 	must.Eq(t, subcommands.ExitFailure, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: failed to exec: fork/exec /does/not/exist: no such file or directory\n", b.String())
 	must.Eq(t, "", c.String())
 	must.Eq(t, "", d.String())
+
+	switch runtime.GOOS {
+	case "windows":
+		must.Eq(t, "envy: failed to exec: exec: \"/does/not/exist\": file does not exist\n", b.String())
+	default:
+		must.Eq(t, "envy: failed to exec: fork/exec /does/not/exist: no such file or directory\n", b.String())
+	}
 }
