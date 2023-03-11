@@ -1,10 +1,12 @@
+NAME = envy
+
 .PHONY: build
 build: clean
-	CGO_ENABLED=0 go build -o output/envy
+	CGO_ENABLED=0 go build -o output/$(NAME)
 
 .PHONY: clean
 clean:
-	rm -rf dist output/envy
+	rm -rf dist output/$(NAME)
 
 .PHONY: test
 test:
