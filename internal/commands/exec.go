@@ -29,6 +29,7 @@ func NewExecCmd(t *setup.Tool) subcommands.Command {
 		writer:        t.Writer,
 		ring:          t.Ring,
 		box:           t.Box,
+		execInputStd:  os.Stdin,
 		execOutputStd: os.Stdout,
 		execOutputErr: os.Stderr,
 	}
@@ -38,6 +39,7 @@ type execCmd struct {
 	writer        output.Writer
 	ring          keyring.Ring
 	box           safe.Box
+	execInputStd  io.Reader
 	execOutputStd io.Writer
 	execOutputErr io.Writer
 }
@@ -130,6 +132,7 @@ func (wc execCmd) newCmd(ns *safe.Namespace, insulate bool, argVars []string, co
 	cmd.Env = append(wc.env(ns, envContext(insulate)), argVars...)
 	cmd.Stdout = wc.execOutputStd
 	cmd.Stderr = wc.execOutputErr
+	cmd.Stdin = wc.execInputStd
 	return cmd
 }
 

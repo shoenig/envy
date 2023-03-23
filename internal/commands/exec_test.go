@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/google/subcommands"
@@ -54,6 +55,7 @@ func TestExecCmd_Execute(t *testing.T) {
 		box:           box,
 		execOutputStd: &c,
 		execOutputErr: &d,
+		execInputStd:  strings.NewReader("ok\n"),
 	}
 
 	box.GetMock.Expect("myNS").Return(&safe.Namespace{
@@ -75,7 +77,7 @@ func TestExecCmd_Execute(t *testing.T) {
 	must.Eq(t, subcommands.ExitSuccess, rc)
 	must.Eq(t, "", a.String())
 	must.Eq(t, "", b.String())
-	must.Eq(t, "a is passw0rd\nb is hunter2\n", c.String())
+	must.Eq(t, "a is passw0rd\nb is hunter2\nok\n", c.String())
 	must.Eq(t, "", d.String())
 }
 
