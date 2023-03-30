@@ -88,6 +88,15 @@ BAR=2
 BAZ=3
 ```
 
+#### execute command including extra variables
+
+```bash
+$ envy exec -insulate example EXTRA=value env
+EXTRA=value
+BAR=2
+BAZ-3
+```
+
 #### list namespaces
 
 ```bash
