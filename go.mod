@@ -3,7 +3,7 @@ module github.com/shoenig/envy
 go 1.20
 
 require (
-	github.com/gojuno/minimock/v3 v3.1.1
+	github.com/gojuno/minimock/v3 v3.1.2
 	github.com/google/subcommands v1.2.0
 	github.com/hashicorp/go-set v0.1.9
 	github.com/hashicorp/go-uuid v1.0.3
@@ -14,7 +14,7 @@ require (
 	github.com/shoenig/test v0.6.1
 	github.com/zalando/go-keyring v0.2.2
 	go.etcd.io/bbolt v1.3.7
-	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
 
 require (
@@ -24,5 +24,5 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 )
