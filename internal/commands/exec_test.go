@@ -159,6 +159,8 @@ func TestExecCmd_Execute_badCommand(t *testing.T) {
 }
 
 func Test_splitArgs(t *testing.T) {
+	skipOS(t)
+
 	type args struct {
 		flagArgs []string
 	}
