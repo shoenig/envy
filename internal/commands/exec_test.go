@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/google/subcommands"
@@ -53,6 +55,7 @@ func TestExecCmd_Execute(t *testing.T) {
 		box:           box,
 		execOutputStd: &c,
 		execOutputErr: &d,
+		execInputStd:  strings.NewReader("ok\n"),
 	}
 
 	box.GetMock.Expect("myNS").Return(&safe.Namespace{
@@ -74,7 +77,7 @@ func TestExecCmd_Execute(t *testing.T) {
 	must.Eq(t, subcommands.ExitSuccess, rc)
 	must.Eq(t, "", a.String())
 	must.Eq(t, "", b.String())
-	must.Eq(t, "a is passw0rd\nb is hunter2\n", c.String())
+	must.Eq(t, "a is passw0rd\nb is hunter2\nok\n", c.String())
 	must.Eq(t, "", d.String())
 }
 
@@ -152,5 +155,99 @@ func TestExecCmd_Execute_badCommand(t *testing.T) {
 		must.Eq(t, "envy: failed to exec: exec: \"/does/not/exist\": file does not exist\n", b.String())
 	default:
 		must.Eq(t, "envy: failed to exec: fork/exec /does/not/exist: no such file or directory\n", b.String())
+	}
+}
+
+func Test_splitArgs(t *testing.T) {
+	type args struct {
+		flagArgs []string
+	}
+	tests := map[string]struct {
+		setup           func()
+		args            args
+		wantArgVars     []string
+		wantCommand     string
+		wantCommandArgs []string
+	}{
+		"no env vars": {
+			args: args{
+				flagArgs: []string{"cat", "log.out"},
+			},
+			wantArgVars:     []string{},
+			wantCommand:     "cat",
+			wantCommandArgs: []string{"log.out"},
+		},
+		"env vars with command but no args": {
+			args: args{
+				flagArgs: []string{"FOO=BAR", "ZIP=ZAP", "ls"},
+			},
+			wantArgVars:     []string{"FOO=BAR", "ZIP=ZAP"},
+			wantCommand:     "ls",
+			wantCommandArgs: []string{},
+		},
+		"env vars with command and args": {
+			args: args{
+				flagArgs: []string{"FOO=BAR", "ZIP=ZAP", "curl", "-k", "localhost:8501"},
+			},
+			wantArgVars:     []string{"FOO=BAR", "ZIP=ZAP"},
+			wantCommand:     "curl",
+			wantCommandArgs: []string{"-k", "localhost:8501"},
+		},
+		"explicit env": {
+			args: args{
+				flagArgs: []string{"env", "FOO=BAR", "ZIP=ZAP", "curl", "-k", "localhost:8501"},
+			},
+			wantArgVars:     []string{"FOO=BAR", "ZIP=ZAP"},
+			wantCommand:     "curl",
+			wantCommandArgs: []string{"-k", "localhost:8501"},
+		},
+		"only env": {
+			args: args{
+				flagArgs: []string{"env"},
+			},
+			wantArgVars:     nil,
+			wantCommand:     "env",
+			wantCommandArgs: []string{},
+		},
+		"all vars and none in path": {
+			args: args{
+				flagArgs: []string{"FOO=BAR", "ZIP=ZAP", "BIP=BOP"},
+			},
+			wantArgVars:     nil,
+			wantCommand:     "FOO=BAR",
+			wantCommandArgs: []string{"ZIP=ZAP", "BIP=BOP"},
+		},
+		"cmd with equal in path is allowed": {
+			setup: func() {
+				tempDir, err := os.MkdirTemp("", "envy")
+				must.NoError(t, err)
+				t.Cleanup(func() { os.RemoveAll(tempDir) })
+
+				f, err := os.OpenFile(filepath.Join(tempDir, "my=cmd"), os.O_CREATE|os.O_EXCL, 0700)
+				must.NoError(t, err)
+				must.NoError(t, f.Close())
+
+				err = os.Setenv("PATH", tempDir)
+				must.NoError(t, err)
+			},
+			args: args{
+				flagArgs: []string{"FOO=BAR", "my=cmd", "ZIP=ZAP"},
+			},
+			wantArgVars:     []string{"FOO=BAR"},
+			wantCommand:     "my=cmd",
+			wantCommandArgs: []string{"ZIP=ZAP"},
+		},
+	}
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			if tt.setup != nil {
+				tt.setup()
+			}
+			gotArgVars, gotCommand, gotCommandArgs := splitArgs(tt.args.flagArgs)
+
+			must.Eq(t, tt.wantArgVars, gotArgVars)
+			must.Eq(t, tt.wantCommand, gotCommand)
+			must.Eq(t, tt.wantCommandArgs, gotCommandArgs)
+		})
 	}
 }
