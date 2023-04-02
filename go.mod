@@ -11,7 +11,7 @@ require (
 	github.com/shoenig/go-conceal v0.4.1
 	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
-	github.com/shoenig/test v0.6.1
+	github.com/shoenig/test v0.6.3
 	github.com/zalando/go-keyring v0.2.2
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
