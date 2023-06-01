@@ -5,13 +5,13 @@ go 1.20
 require (
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/google/subcommands v1.2.0
-	github.com/hashicorp/go-set v0.1.12
+	github.com/hashicorp/go-set v0.1.13
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/shoenig/go-conceal v0.4.1
 	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
-	github.com/shoenig/test v0.6.3
+	github.com/shoenig/test v0.6.4
 	github.com/zalando/go-keyring v0.2.3
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
