@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/gojuno/minimock/v3 v3.1.3
 	github.com/google/subcommands v1.2.0
-	github.com/hashicorp/go-set v0.1.13
+	github.com/hashicorp/go-set v0.1.14
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/shoenig/go-conceal v0.5.0
