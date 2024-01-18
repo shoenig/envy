@@ -3,13 +3,13 @@ package safe
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 	"time"
 
 	"github.com/hashicorp/go-set/v2"
 	"github.com/pkg/errors"
 	"go.etcd.io/bbolt"
-	"golang.org/x/exp/slices"
 )
 
 const (

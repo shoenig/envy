@@ -14,7 +14,6 @@ require (
 	github.com/shoenig/test v0.6.7
 	github.com/zalando/go-keyring v0.2.3
 	go.etcd.io/bbolt v1.3.8
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 )
 
 require (
