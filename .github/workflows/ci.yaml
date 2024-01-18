@@ -4,10 +4,13 @@ jobs:
   lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-golang@v3
+        with:
+          version-file: go.mod
       - uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.51.1
+          version: v1.55.2
           skip-cache: true
   run-tests:
     strategy:
@@ -17,11 +20,12 @@ jobs:
           - ubuntu-20.04
           - ubuntu-22.04
           - macos-12
+          - macos-13
           - windows-2022
     runs-on: ${{matrix.os}}
     steps:
-      - uses: actions/checkout@v3
-      - uses: hashicorp/setup-golang@v1
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-golang@v3
         with:
           version-file: go.mod
       - name: Run Go Vet
