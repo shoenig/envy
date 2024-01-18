@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/go-set"
+	"github.com/hashicorp/go-set/v2"
 	"github.com/pkg/errors"
 	"github.com/shoenig/envy/internal/keyring"
 	"github.com/shoenig/envy/internal/safe"

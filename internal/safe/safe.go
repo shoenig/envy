@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/go-set"
+	"github.com/hashicorp/go-set/v2"
 	"github.com/pkg/errors"
 	"go.etcd.io/bbolt"
 	"golang.org/x/exp/slices"
