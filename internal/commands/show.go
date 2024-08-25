@@ -4,84 +4,60 @@
 package commands
 
 import (
-	"context"
-	"flag"
 	"sort"
 
-	"github.com/google/subcommands"
-	"github.com/shoenig/envy/internal/keyring"
-	"github.com/shoenig/envy/internal/output"
-	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
+	"noxide.lol/go/babycli"
 )
 
-const (
-	showCmdName     = "show"
-	showCmdSynopsis = "Show environment variable(s) in namespace."
-	showCmdUsage    = "show [--decrypt] [--rm] [namespace]"
+func newShowCmd(tool *setup.Tool) *babycli.Component {
+	return &babycli.Component{
+		Name: "show",
+		Help: "show values in an environment variable profile",
+		Flags: babycli.Flags{
+			{
+				Type:  babycli.BooleanFlag,
+				Long:  "unveil",
+				Short: "u",
+				Help:  "show decrypted values",
+				Default: &babycli.Default{
+					Value: false,
+					Show:  false,
+				},
+			},
+		},
+		Function: func(c *babycli.Component) babycli.Code {
+			args := c.Arguments()
 
-	flagDecrypt = "decrypt"
-)
+			if len(args) != 1 {
+				tool.Writer.Errorf("must specify profile and command argument(s)")
+				return babycli.Failure
+			}
 
-func NewShowCmd(t *setup.Tool) subcommands.Command {
-	return &showCmd{
-		writer: t.Writer,
-		ring:   t.Ring,
-		box:    t.Box,
+			name := args[0]
+			p, err := tool.Box.Get(name)
+			if err != nil {
+				tool.Writer.Errorf("could not read profile: %v", err)
+				return babycli.Failure
+			}
+
+			keys := make([]string, 0, len(p.Content))
+			for k := range p.Content {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+
+			for _, key := range keys {
+				if c.GetBool("unveil") {
+					value := p.Content[key]
+					secret := tool.Ring.Decrypt(value)
+					tool.Writer.Printf("%s=%s", key, secret.Unveil())
+				} else {
+					tool.Writer.Printf("%s", key)
+				}
+			}
+
+			return babycli.Success
+		},
 	}
-}
-
-type showCmd struct {
-	writer output.Writer
-	ring   keyring.Ring
-	box    safe.Box
-}
-
-func (sc showCmd) Name() string {
-	return showCmdName
-}
-
-func (sc showCmd) Synopsis() string {
-	return showCmdSynopsis
-}
-
-func (sc showCmd) Usage() string {
-	return showCmdUsage
-}
-
-func (sc showCmd) SetFlags(fs *flag.FlagSet) {
-	_ = fs.Bool(flagDecrypt, false, "decrypt will print secrets")
-}
-
-func (sc showCmd) Execute(_ context.Context, fs *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	decrypt := fsBool(fs, flagDecrypt)
-
-	if len(fs.Args()) != 1 {
-		sc.writer.Errorf("expected only namespace argument")
-		return subcommands.ExitUsageError
-	}
-
-	ns, err := sc.box.Get(fs.Arg(0))
-	if err != nil {
-		sc.writer.Errorf("could not retrieve namespace: %v", err)
-		return subcommands.ExitFailure
-	}
-
-	keys := make([]string, 0, len(ns.Content))
-	for k := range ns.Content {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	for _, key := range keys {
-		if decrypt {
-			value := ns.Content[key]
-			secret := sc.ring.Decrypt(value)
-			sc.writer.Printf("%s=%s", key, secret.Unveil())
-		} else {
-			sc.writer.Printf("%s", key)
-		}
-	}
-
-	return subcommands.ExitSuccess
 }

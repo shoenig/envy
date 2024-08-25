@@ -4,90 +4,48 @@
 package commands
 
 import (
-	"context"
-	"flag"
-
-	"github.com/google/subcommands"
-	"github.com/hashicorp/go-set/v2"
-	"github.com/shoenig/envy/internal/output"
-	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
+	"noxide.lol/go/babycli"
 )
 
-const (
-	setCmdName     = "set"
-	setCmdSynopsis = "Set environment variable(s) for namespace."
-	setCmdUsage    = "set [namespace] [env=value, ...]"
-)
+func newSetCmd(tool *setup.Tool) *babycli.Component {
+	return &babycli.Component{
+		Name: "set",
+		Help: "set environment variable(s) in a profile",
+		Function: func(c *babycli.Component) babycli.Code {
+			args := c.Arguments()
+			extractor := newExtractor(tool.Ring)
+			namespace, remove, add, err := extractor.PreProcess(args)
+			if err != nil {
+				tool.Writer.Errorf("unable to parse args: %v", err)
+				return babycli.Failure
+			}
 
-func NewSetCmd(t *setup.Tool) subcommands.Command {
-	return &setCmd{
-		writer: t.Writer,
-		ex:     newExtractor(t.Ring),
-		box:    t.Box,
+			if err = checkName(namespace); err != nil {
+				tool.Writer.Errorf("could not set namespace: %v", err)
+				return babycli.Failure
+			}
+
+			if !remove.Empty() {
+				if err := tool.Box.Delete(namespace, remove); err != nil {
+					tool.Writer.Errorf("coult not remove variables: %v", err)
+					return babycli.Failure
+				}
+			}
+
+			n, err := extractor.Namespace(add)
+			if err != nil {
+				tool.Writer.Errorf("unable to parse args: %v", err)
+				return babycli.Failure
+			}
+			n.Name = namespace
+
+			if err = tool.Box.Set(n); err != nil {
+				tool.Writer.Errorf("unable to set variables: %v", err)
+				return babycli.Failure
+			}
+
+			return babycli.Success
+		},
 	}
-}
-
-type setCmd struct {
-	writer output.Writer
-	ex     Extractor
-	box    safe.Box
-}
-
-func (setCmd) Name() string {
-	return setCmdName
-}
-
-func (setCmd) Synopsis() string {
-	return setCmdSynopsis
-}
-
-func (setCmd) Usage() string {
-	return setCmdUsage
-}
-
-func (setCmd) SetFlags(*flag.FlagSet) {
-}
-
-func (sc setCmd) Execute(_ context.Context, fs *flag.FlagSet, _ ...any) subcommands.ExitStatus {
-	namespace, remove, add, err := sc.ex.PreProcess(fs.Args())
-	if err != nil {
-		sc.writer.Errorf("unable to parse args: %v", err)
-		return subcommands.ExitUsageError
-	}
-
-	if err = checkName(namespace); err != nil {
-		sc.writer.Errorf("could not set namespace: %v", err)
-		return subcommands.ExitUsageError
-	}
-
-	if err = sc.rm(namespace, remove); err != nil {
-		sc.writer.Errorf("unable to remove variables: %v", err)
-		return subcommands.ExitFailure
-	}
-
-	n, err := sc.ex.Namespace(add)
-	if err != nil {
-		sc.writer.Errorf("unable to parse args: %v", err)
-		return subcommands.ExitUsageError
-	}
-	n.Name = namespace
-
-	if err = sc.set(n); err != nil {
-		sc.writer.Errorf("unable to set variables: %v", err)
-		return subcommands.ExitFailure
-	}
-
-	return subcommands.ExitSuccess
-}
-
-func (sc setCmd) rm(namespace string, keys *set.Set[string]) error {
-	if keys.Empty() {
-		return nil
-	}
-	return sc.box.Delete(namespace, keys)
-}
-
-func (sc setCmd) set(ns *safe.Namespace) error {
-	return sc.box.Set(ns)
 }
