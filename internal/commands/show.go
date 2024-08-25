@@ -53,7 +53,7 @@ func (sc showCmd) SetFlags(fs *flag.FlagSet) {
 	_ = fs.Bool(flagDecrypt, false, "decrypt will print secrets")
 }
 
-func (sc showCmd) Execute(ctx context.Context, fs *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (sc showCmd) Execute(_ context.Context, fs *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	decrypt := fsBool(fs, flagDecrypt)
 
 	if len(fs.Args()) != 1 {

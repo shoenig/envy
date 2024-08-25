@@ -31,23 +31,23 @@ type listCmd struct {
 	box    safe.Box
 }
 
-func (lc listCmd) Name() string {
+func (listCmd) Name() string {
 	return listCmdName
 }
 
-func (lc listCmd) Synopsis() string {
+func (listCmd) Synopsis() string {
 	return listCmdSynopsis
 }
 
-func (lc listCmd) Usage() string {
+func (listCmd) Usage() string {
 	return listCmdUsage
 }
 
-func (lc listCmd) SetFlags(set *flag.FlagSet) {
+func (listCmd) SetFlags(*flag.FlagSet) {
 	// no flags when listing namespaces
 }
 
-func (lc listCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+func (lc listCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if f.NArg() != 0 {
 		lc.writer.Errorf("list command expects no args")
 		return subcommands.ExitUsageError
