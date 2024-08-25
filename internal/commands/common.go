@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashicorp/go-set/v2"
+	"github.com/hashicorp/go-set/v3"
 	"github.com/pkg/errors"
 	"github.com/shoenig/envy/internal/keyring"
 	"github.com/shoenig/envy/internal/safe"
