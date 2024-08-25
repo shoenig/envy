@@ -31,23 +31,23 @@ type purgeCmd struct {
 	box    safe.Box
 }
 
-func (pc purgeCmd) Name() string {
+func (purgeCmd) Name() string {
 	return purgeCmdName
 }
 
-func (pc purgeCmd) Synopsis() string {
+func (purgeCmd) Synopsis() string {
 	return purgeCmdSynopsis
 }
 
-func (pc purgeCmd) Usage() string {
+func (purgeCmd) Usage() string {
 	return purgeCmdUsage
 }
 
-func (pc purgeCmd) SetFlags(_ *flag.FlagSet) {
+func (purgeCmd) SetFlags(_ *flag.FlagSet) {
 	// no flags when purging namespace
 }
 
-func (pc purgeCmd) Execute(ctx context.Context, fs *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
+func (pc purgeCmd) Execute(_ context.Context, fs *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if fs.NArg() != 1 {
 		pc.writer.Errorf("expected one namespace argument")
 		return subcommands.ExitUsageError

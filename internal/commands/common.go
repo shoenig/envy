@@ -5,7 +5,6 @@ package commands
 
 import (
 	"flag"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -52,11 +51,11 @@ func newExtractor(ring keyring.Ring) Extractor {
 // - any error
 func (e *extractor) PreProcess(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error) {
 	if len(args) < 2 {
-		return "", nil, nil, fmt.Errorf("requires at least 2 arguments (namespace, <key,...>)")
+		return "", nil, nil, errors.New("requires at least 2 arguments (namespace, <key,...>)")
 	}
 	ns := args[0]
 	rm := set.New[string](4)
-	add := set.NewHashSet[*conceal.Text, int](8)
+	add := set.NewHashSet[*conceal.Text](8)
 	for i := 1; i < len(args); i++ {
 		s := args[i]
 		switch {
@@ -65,7 +64,7 @@ func (e *extractor) PreProcess(args []string) (string, *set.Set[string], *set.Ha
 		case strings.Contains(s, "="):
 			add.Insert(conceal.New(s))
 		default:
-			return "", nil, nil, fmt.Errorf("argument must start with '-' or contain '='")
+			return "", nil, nil, errors.New("argument must start with '-' or contain '='")
 		}
 	}
 	return ns, rm, add, nil
@@ -85,11 +84,11 @@ func (e *extractor) Namespace(vars *set.HashSet[*conceal.Text, int]) (*safe.Name
 func (e *extractor) process(args []*conceal.Text) (map[string]safe.Encrypted, error) {
 	content := make(map[string]safe.Encrypted, len(args))
 	for _, kv := range args {
-		if key, secret, err := e.encryptEnvVar(kv); err != nil {
+		key, secret, err := e.encryptEnvVar(kv)
+		if err != nil {
 			return nil, err
-		} else {
-			content[key] = secret
 		}
+		content[key] = secret
 	}
 	return content, nil
 }

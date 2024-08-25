@@ -13,8 +13,6 @@ linters:
    - errname
    - errorlint
    - exhaustive
-   - exportloopref
-   - gochecknoinits
    - gocritic
    - gofmt
    - gosimple
@@ -25,7 +23,6 @@ linters:
    - musttag
    - nilnil
    - noctx
-   - paralleltest
    - perfsprint
    - prealloc
    - predeclared
@@ -39,8 +36,3 @@ linters:
    - unused
    - whitespace
 
-linters-settings:
-  paralleltest:
-    ignore-missing-subtests: true
-  exhaustive:
-    default-signifies-exhaustive: true

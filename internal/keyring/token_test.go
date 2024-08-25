@@ -19,8 +19,7 @@ func init() {
 
 func setEnv(t *testing.T, key, value string) string {
 	previous := os.Getenv(key)
-	err := os.Setenv(key, value)
-	must.NoError(t, err)
+	t.Setenv(key, value)
 	return previous
 }
 

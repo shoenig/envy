@@ -34,22 +34,22 @@ type setCmd struct {
 	box    safe.Box
 }
 
-func (sc setCmd) Name() string {
+func (setCmd) Name() string {
 	return setCmdName
 }
 
-func (sc setCmd) Synopsis() string {
+func (setCmd) Synopsis() string {
 	return setCmdSynopsis
 }
 
-func (sc setCmd) Usage() string {
+func (setCmd) Usage() string {
 	return setCmdUsage
 }
 
-func (sc setCmd) SetFlags(fs *flag.FlagSet) {
+func (setCmd) SetFlags(*flag.FlagSet) {
 }
 
-func (sc setCmd) Execute(ctx context.Context, fs *flag.FlagSet, _ ...any) subcommands.ExitStatus {
+func (sc setCmd) Execute(_ context.Context, fs *flag.FlagSet, _ ...any) subcommands.ExitStatus {
 	namespace, remove, add, err := sc.ex.PreProcess(fs.Args())
 	if err != nil {
 		sc.writer.Errorf("unable to parse args: %v", err)
