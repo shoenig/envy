@@ -1,0 +1,46 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+   - asasalint
+   - asciicheck
+   - bidichk
+   - bodyclose
+   - dogsled
+   - dupword
+   - durationcheck
+   - errcheck
+   - errname
+   - errorlint
+   - exhaustive
+   - exportloopref
+   - gochecknoinits
+   - gocritic
+   - gofmt
+   - gosimple
+   - govet
+   - ineffassign
+   - makezero
+   - misspell
+   - musttag
+   - nilnil
+   - noctx
+   - paralleltest
+   - perfsprint
+   - prealloc
+   - predeclared
+   - reassign
+   - revive
+   - rowserrcheck
+   - staticcheck
+   - sqlclosecheck
+   - tagalign
+   - tenv
+   - unused
+   - whitespace
+
+linters-settings:
+  paralleltest:
+    ignore-missing-subtests: true
+  exhaustive:
+    default-signifies-exhaustive: true
