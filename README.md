@@ -98,15 +98,17 @@ BAZ=3
 #### execute command excluding external environment
 
 ```bash
-$ envy exec -insulate example env
+$ envy exec --insulate example env
 BAR=2
 BAZ=3
 ```
 
+Note that `-i` is short for `--insulate`.
+
 #### execute command including extra variables
 
 ```bash
-$ envy exec -insulate example EXTRA=value env
+$ envy exec --insulate example EXTRA=value env
 EXTRA=value
 BAR=2
 BAZ-3
@@ -133,10 +135,12 @@ AWS_SECRET_ACCESS_KEY
 #### show profile variables w/ values
 
 ```bash
-$ envy show -decrypt test
+$ envy show --unveil test
 AWS_ACCESS_KEY_ID=aaabbbccc
 AWS_SECRET_ACCESS_KEY=233kjsdf309jfsd
 ```
+
+Note that `-u` is short for `--unveil`.
 
 #### delete profile
 
