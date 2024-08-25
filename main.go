@@ -4,19 +4,12 @@
 package main
 
 import (
-	"context"
-	"flag"
 	"os"
 
-	"github.com/google/subcommands"
 	"github.com/shoenig/envy/internal/commands"
 	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/setup"
-)
-
-const (
-	usageGroup = "usage"
-	envyGroup  = "envy"
+	"noxide.lol/go/babycli"
 )
 
 func main() {
@@ -25,23 +18,27 @@ func main() {
 		output.New(os.Stdout, os.Stderr),
 	)
 
-	fs := flag.NewFlagSet(envyGroup, flag.ContinueOnError)
+	args := babycli.Arguments()
+	rc := commands.Invoke(args, tool)
+	os.Exit(rc)
 
-	subs := subcommands.NewCommander(fs, "envy commands")
-	subs.Register(subs.HelpCommand(), usageGroup)
-	subs.Register(subs.FlagsCommand(), usageGroup)
-	subs.Register(commands.NewListCmd(tool), envyGroup)
-	subs.Register(commands.NewSetCmd(tool), envyGroup)
-	subs.Register(commands.NewPurgeCmd(tool), envyGroup)
-	subs.Register(commands.NewShowCmd(tool), envyGroup)
-	subs.Register(commands.NewExecCmd(tool), envyGroup)
+	// fs := flag.NewFlagSet(envyGroup, flag.ContinueOnError)
 
-	if err := fs.Parse(os.Args[1:]); err != nil {
-		tool.Writer.Errorf("unable to parse args: %v", err)
-		os.Exit(1)
-	}
+	// subs := subcommands.NewCommander(fs, "envy commands")
+	// subs.Register(subs.HelpCommand(), usageGroup)
+	// subs.Register(subs.FlagsCommand(), usageGroup)
+	// subs.Register(commands.NewListCmd(tool), envyGroup)
+	// subs.Register(commands.NewSetCmd(tool), envyGroup)
+	// subs.Register(commands.NewPurgeCmd(tool), envyGroup)
+	// subs.Register(commands.NewShowCmd(tool), envyGroup)
+	// subs.Register(commands.NewExecCmd(tool), envyGroup)
 
-	ctx := context.Background()
-	rc := subs.Execute(ctx, fs.Args())
-	os.Exit(int(rc))
+	// if err := fs.Parse(os.Args[1:]); err != nil {
+	// 	tool.Writer.Errorf("unable to parse args: %v", err)
+	// 	os.Exit(1)
+	// }
+
+	// ctx := context.Background()
+	// rc := subs.Execute(ctx, fs.Args())
+	// os.Exit(int(rc))
 }

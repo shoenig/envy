@@ -4,23 +4,54 @@
 package commands
 
 import (
-	"flag"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-set/v2"
 	"github.com/pkg/errors"
 	"github.com/shoenig/envy/internal/keyring"
 	"github.com/shoenig/envy/internal/safe"
+	"github.com/shoenig/envy/internal/setup"
 	"github.com/shoenig/go-conceal"
 	"github.com/shoenig/regexplus"
+	"noxide.lol/go/babycli"
 )
 
 var (
 	argRe       = regexp.MustCompile(`^(?P<key>\w+)=(?P<secret>.+)$`)
 	namespaceRe = regexp.MustCompile(`^[-:/\w]+$`)
 )
+
+const (
+	description = `
+The envy is a command line tool for managing profiles of
+environment variables.  Values are stored securely using
+encryption with keys protected by your desktop keychain.`
+)
+
+func Invoke(args []string, tool *setup.Tool) babycli.Code {
+	return invoke(args, tool)
+}
+
+func invoke(args []string, tool *setup.Tool) babycli.Code {
+	r := babycli.New(&babycli.Configuration{
+		Arguments: args,
+		Version:   "v0",
+		Top: &babycli.Component{
+			Name:        "envy",
+			Help:        "wrangle environment varibles",
+			Description: description,
+			Components: babycli.Components{
+				newListCmd(tool),
+				newSetCmd(tool),
+				newPurgeCmd(tool),
+				newShowCmd(tool),
+				newExecCmd(tool),
+			},
+		},
+	})
+	return r.Run()
+}
 
 func checkName(namespace string) error {
 	if !namespaceRe.MatchString(namespace) {
@@ -104,12 +135,4 @@ func (e *extractor) encryptEnvVar(kv *conceal.Text) (string, safe.Encrypted, err
 
 func (e *extractor) encrypt(s *conceal.Text) safe.Encrypted {
 	return e.ring.Encrypt(s)
-}
-
-func fsBool(fs *flag.FlagSet, name string) bool {
-	b, err := strconv.ParseBool(fs.Lookup(name).Value.String())
-	if err != nil {
-		return false
-	}
-	return b
 }

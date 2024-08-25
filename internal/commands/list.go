@@ -4,64 +4,29 @@
 package commands
 
 import (
-	"context"
-	"flag"
-
-	"github.com/google/subcommands"
-	"github.com/shoenig/envy/internal/output"
-	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
+	"noxide.lol/go/babycli"
 )
 
-const (
-	listCmdName     = "list"
-	listCmdSynopsis = "List all namespaces."
-	listCmdUsage    = "list"
-)
+func newListCmd(tool *setup.Tool) *babycli.Component {
+	return &babycli.Component{
+		Name: "list",
+		Help: "list environment profiles",
+		Function: func(c *babycli.Component) babycli.Code {
+			if c.Nargs() > 0 {
+				tool.Writer.Errorf("list command expects no args")
+				return babycli.Failure
+			}
+			namespaces, err := tool.Box.List()
+			if err != nil {
+				tool.Writer.Errorf("unable to list namespaces: %v", err)
+				return babycli.Failure
+			}
 
-func NewListCmd(t *setup.Tool) subcommands.Command {
-	return &listCmd{
-		writer: t.Writer,
-		box:    t.Box,
+			for _, ns := range namespaces {
+				tool.Writer.Printf("%s", ns)
+			}
+			return babycli.Success
+		},
 	}
-}
-
-type listCmd struct {
-	writer output.Writer
-	box    safe.Box
-}
-
-func (listCmd) Name() string {
-	return listCmdName
-}
-
-func (listCmd) Synopsis() string {
-	return listCmdSynopsis
-}
-
-func (listCmd) Usage() string {
-	return listCmdUsage
-}
-
-func (listCmd) SetFlags(*flag.FlagSet) {
-	// no flags when listing namespaces
-}
-
-func (lc listCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	if f.NArg() != 0 {
-		lc.writer.Errorf("list command expects no args")
-		return subcommands.ExitUsageError
-	}
-
-	namespaces, err := lc.box.List()
-	if err != nil {
-		lc.writer.Errorf("unable to list namespaces: %v", err)
-		return subcommands.ExitFailure
-	}
-
-	for _, ns := range namespaces {
-		lc.writer.Printf("%s", ns)
-	}
-
-	return subcommands.ExitSuccess
 }

@@ -4,134 +4,103 @@
 package commands
 
 import (
-	"context"
-	"os"
 	"testing"
 
-	"github.com/google/subcommands"
 	"github.com/pkg/errors"
-	"github.com/shoenig/envy/internal/output"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
 	"github.com/shoenig/test/must"
 )
 
-func TestPurgeCmd_Ops(t *testing.T) {
-	db := newDBFile(t)
-	defer cleanupFile(t, db)
-
-	w := output.New(os.Stdout, os.Stdout)
-	cmd := NewPurgeCmd(setup.New(db, w))
-
-	must.Eq(t, purgeCmdName, cmd.Name())
-	must.Eq(t, purgeCmdSynopsis, cmd.Synopsis())
-	must.Eq(t, purgeCmdUsage, cmd.Usage())
-}
-
-func TestPurgeCmdExecute(t *testing.T) {
+func TestPurgeCmd_ok(t *testing.T) {
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
 	a, b, w := newWriter()
 
-	pc := &purgeCmd{
-		writer: w,
-		box:    box,
+	tool := &setup.Tool{
+		Writer: w,
+		Box:    box,
 	}
 
 	box.PurgeMock.Expect("myNS").Return(nil)
 
-	fs, args := setupFlagSet(t, []string{"myNS"})
-	pc.SetFlags(fs)
-	ctx := context.Background()
-	rc := pc.Execute(ctx, fs, args)
+	rc := invoke([]string{"purge", "myNS"}, tool)
 
-	must.Eq(t, subcommands.ExitSuccess, rc)
-	must.Eq(t, "purged namespace \"myNS\"\n", a.String())
+	must.Zero(t, rc)
+	must.Eq(t, "purged profile \"myNS\"\n", a.String())
 	must.Eq(t, "", b.String())
 }
 
-func TestPurgeCmd_Execute_purgeFails(t *testing.T) {
+func TestPurgeCmd_fails(t *testing.T) {
 	box := safe.NewBoxMock(t)
 	a, b, w := newWriter()
 
-	pc := &purgeCmd{
-		writer: w,
-		box:    box,
+	tool := &setup.Tool{
+		Writer: w,
+		Box:    box,
 	}
 
 	box.PurgeMock.Expect("myNS").Return(errors.New("does not exist"))
 
-	fs, args := setupFlagSet(t, []string{"myNS"})
-	pc.SetFlags(fs)
-	ctx := context.Background()
-	rc := pc.Execute(ctx, fs, args)
+	rc := invoke([]string{"purge", "myNS"}, tool)
 
-	must.Eq(t, subcommands.ExitFailure, rc)
+	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: could not purge namespace: does not exist\n", b.String())
+	must.Eq(t, "envy: unable to purge profile: does not exist\n", b.String())
 }
 
-func TestPurgeCmd_Execute_noArg(t *testing.T) {
+func TestPurgeCmd_no_arg(t *testing.T) {
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
 	a, b, w := newWriter()
 
-	pc := &purgeCmd{
-		writer: w,
-		box:    box,
+	tool := &setup.Tool{
+		Writer: w,
+		Box:    box,
 	}
 
-	fs, args := setupFlagSet(t, []string{})
-	pc.SetFlags(fs)
-	ctx := context.Background()
-	rc := pc.Execute(ctx, fs, args)
+	rc := invoke([]string{"purge"}, tool)
 
-	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: expected one namespace argument\n", b.String())
+	must.Eq(t, "envy: must specify one profile\n", b.String())
 }
 
-func TestPurgeCmd_Execute_badNS(t *testing.T) {
+func TestPurgeCmd_bad_profile(t *testing.T) {
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
 	a, b, w := newWriter()
 
-	pc := &purgeCmd{
-		writer: w,
-		box:    box,
+	tool := &setup.Tool{
+		Writer: w,
+		Box:    box,
 	}
 
 	// namespace must be valid
-	fs, args := setupFlagSet(t, []string{"foo=bar"})
-	pc.SetFlags(fs)
-	ctx := context.Background()
-	rc := pc.Execute(ctx, fs, args)
+	rc := invoke([]string{"purge", "foo=bar"}, tool)
 
-	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: could not purge namespace: namespace uses non-word characters\n", b.String())
+	must.Eq(t, "envy: unable to purge profile: namespace uses non-word characters\n", b.String())
 }
 
-func TestPurgeCmd_Execute_twoArg(t *testing.T) {
+func TestPurgeCmd_two_arg(t *testing.T) {
 	box := safe.NewBoxMock(t)
 	defer box.MinimockFinish()
 
 	a, b, w := newWriter()
 
-	pc := &purgeCmd{
-		writer: w,
-		box:    box,
+	tool := &setup.Tool{
+		Writer: w,
+		Box:    box,
 	}
 
-	fs, args := setupFlagSet(t, []string{"ns1", "ns2"})
-	pc.SetFlags(fs)
-	ctx := context.Background()
-	rc := pc.Execute(ctx, fs, args)
+	rc := invoke([]string{"purge", "ns1", "ns2"}, tool)
 
-	must.Eq(t, subcommands.ExitUsageError, rc)
+	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: expected one namespace argument\n", b.String())
+	must.Eq(t, "envy: must specify one profile\n", b.String())
 }

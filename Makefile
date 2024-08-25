@@ -1,10 +1,8 @@
 NAME = envy
 
-default: build
-
-.PHONY: build
+.PHONY: compile
 build: clean
-	@echo "--> Build ..."
+	@echo "--> Compile ..."
 	CGO_ENABLED=0 go build -o output/$(NAME)
 
 .PHONY: clean
@@ -39,3 +37,5 @@ release:
 	@echo "--> RELEASE ..."
 	envy exec gh-release goreleaser release --clean
 	$(MAKE) clean
+
+default: compile
