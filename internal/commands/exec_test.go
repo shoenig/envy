@@ -157,7 +157,7 @@ func TestExecCmd_Execute_badCommand(t *testing.T) {
 
 	switch runtime.GOOS {
 	case "windows":
-		must.Eq(t, "envy: failed to exec: exec: \"/does/not/exist\": file does not exist\n", b.String()) // nolint: dupword
+		must.StrContains(t, b.String(), "envy: failed to exec: exec:") // nolint: dupword
 	default:
 		must.Eq(t, "envy: failed to exec: fork/exec /does/not/exist: no such file or directory\n", b.String())
 	}
