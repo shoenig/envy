@@ -9,15 +9,15 @@ import (
 	"github.com/shoenig/test/must"
 )
 
-func TestNamespace_String(t *testing.T) {
-	ns := &Namespace{
+func TestProfile_String(t *testing.T) {
+	pr := &Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"foo": []byte{1, 1, 1, 1, 1},
 			"bar": []byte{2, 2, 2, 2, 2},
 		},
 	}
-	s := ns.String()
+	s := pr.String()
 	exp := "(ns1 [bar foo])"
 	must.Eq(t, exp, s)
 }

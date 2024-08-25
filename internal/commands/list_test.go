@@ -53,7 +53,7 @@ func TestListCmd_list_fails(t *testing.T) {
 
 	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: unable to list namespaces: io error\n", b.String())
+	must.Eq(t, "envy: unable to list profiles: io error\n", b.String())
 }
 
 func TestListCmd_extra_args(t *testing.T) {

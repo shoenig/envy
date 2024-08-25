@@ -68,19 +68,19 @@ GLOBALS:
 --help/-h   boolean - print help message
 ```
 
-#### set a namespace
+#### create/update a profile
 
 ```bash
 $ envy set example FOO=1 BAR=2 BAZ=3
 ```
 
-#### update existing variable in a namespace
+#### update existing variable in a profile
 
 ```bash
 $ envy set example FOO=4
 ```
 
-#### remove variable from namespace
+#### remove variable from profile
 
 ```bash
 $ envy set example -FOO
@@ -112,7 +112,7 @@ BAR=2
 BAZ-3
 ```
 
-#### list namespaces
+#### list available profiles
 
 ```bash
 $ envy list
@@ -122,7 +122,7 @@ nomad/e2e
 test
 ```
 
-#### show namespace
+#### show variables in a profile
 
 ```bash
 $ envy show test
@@ -130,7 +130,7 @@ AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 ```
 
-#### show namespace w/ values
+#### show profile variables w/ values
 
 ```bash
 $ envy show -decrypt test
@@ -138,11 +138,11 @@ AWS_ACCESS_KEY_ID=aaabbbccc
 AWS_SECRET_ACCESS_KEY=233kjsdf309jfsd
 ```
 
-#### remove namespace
+#### delete profile
 
 ```bash
 $ envy purge test
-purged namespace "test"
+purged profile "test"
 ```
 
 # Contributing

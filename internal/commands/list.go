@@ -17,14 +17,14 @@ func newListCmd(tool *setup.Tool) *babycli.Component {
 				tool.Writer.Errorf("list command expects no args")
 				return babycli.Failure
 			}
-			namespaces, err := tool.Box.List()
+			profiles, err := tool.Box.List()
 			if err != nil {
-				tool.Writer.Errorf("unable to list namespaces: %v", err)
+				tool.Writer.Errorf("unable to list profiles: %v", err)
 				return babycli.Failure
 			}
 
-			for _, ns := range namespaces {
-				tool.Writer.Printf("%s", ns)
+			for _, profile := range profiles {
+				tool.Writer.Printf("%s", profile)
 			}
 			return babycli.Success
 		},

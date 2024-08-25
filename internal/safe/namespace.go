@@ -11,17 +11,17 @@ import (
 
 type Encrypted []byte
 
-type Namespace struct {
+type Profile struct {
 	Name    string
 	Content map[string]Encrypted
 }
 
-func (ns *Namespace) String() string {
+func (ns *Profile) String() string {
 	keys := ns.Keys()
 	return fmt.Sprintf("(%s [%s])", ns.Name, strings.Join(keys, " "))
 }
 
-func (ns *Namespace) Keys() []string {
+func (ns *Profile) Keys() []string {
 	keys := make([]string, 0, len(ns.Content))
 	for key := range ns.Content {
 		keys = append(keys, key)
