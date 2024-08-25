@@ -21,7 +21,7 @@ type BoxMock struct {
 	beforeDeleteCounter uint64
 	DeleteMock          mBoxMockDelete
 
-	funcGet          func(s1 string) (np1 *Namespace, err error)
+	funcGet          func(s1 string) (np1 *Profile, err error)
 	inspectFuncGet   func(s1 string)
 	afterGetCounter  uint64
 	beforeGetCounter uint64
@@ -39,8 +39,8 @@ type BoxMock struct {
 	beforePurgeCounter uint64
 	PurgeMock          mBoxMockPurge
 
-	funcSet          func(np1 *Namespace) (err error)
-	inspectFuncSet   func(np1 *Namespace)
+	funcSet          func(np1 *Profile) (err error)
+	inspectFuncSet   func(np1 *Profile)
 	afterSetCounter  uint64
 	beforeSetCounter uint64
 	SetMock          mBoxMockSet
@@ -310,7 +310,7 @@ type BoxMockGetParams struct {
 
 // BoxMockGetResults contains results of the Box.Get
 type BoxMockGetResults struct {
-	np1 *Namespace
+	np1 *Profile
 	err error
 }
 
@@ -346,7 +346,7 @@ func (mmGet *mBoxMockGet) Inspect(f func(s1 string)) *mBoxMockGet {
 }
 
 // Return sets up results that will be returned by Box.Get
-func (mmGet *mBoxMockGet) Return(np1 *Namespace, err error) *BoxMock {
+func (mmGet *mBoxMockGet) Return(np1 *Profile, err error) *BoxMock {
 	if mmGet.mock.funcGet != nil {
 		mmGet.mock.t.Fatalf("BoxMock.Get mock is already set by Set")
 	}
@@ -359,7 +359,7 @@ func (mmGet *mBoxMockGet) Return(np1 *Namespace, err error) *BoxMock {
 }
 
 // Set uses given function f to mock the Box.Get method
-func (mmGet *mBoxMockGet) Set(f func(s1 string) (np1 *Namespace, err error)) *BoxMock {
+func (mmGet *mBoxMockGet) Set(f func(s1 string) (np1 *Profile, err error)) *BoxMock {
 	if mmGet.defaultExpectation != nil {
 		mmGet.mock.t.Fatalf("Default expectation is already set for the Box.Get method")
 	}
@@ -388,13 +388,13 @@ func (mmGet *mBoxMockGet) When(s1 string) *BoxMockGetExpectation {
 }
 
 // Then sets up Box.Get return parameters for the expectation previously defined by the When method
-func (e *BoxMockGetExpectation) Then(np1 *Namespace, err error) *BoxMock {
+func (e *BoxMockGetExpectation) Then(np1 *Profile, err error) *BoxMock {
 	e.results = &BoxMockGetResults{np1, err}
 	return e.mock
 }
 
 // Get implements Box
-func (mmGet *BoxMock) Get(s1 string) (np1 *Namespace, err error) {
+func (mmGet *BoxMock) Get(s1 string) (np1 *Profile, err error) {
 	mm_atomic.AddUint64(&mmGet.beforeGetCounter, 1)
 	defer mm_atomic.AddUint64(&mmGet.afterGetCounter, 1)
 
@@ -880,7 +880,7 @@ type BoxMockSetExpectation struct {
 
 // BoxMockSetParams contains parameters of the Box.Set
 type BoxMockSetParams struct {
-	np1 *Namespace
+	np1 *Profile
 }
 
 // BoxMockSetResults contains results of the Box.Set
@@ -889,7 +889,7 @@ type BoxMockSetResults struct {
 }
 
 // Expect sets up expected params for Box.Set
-func (mmSet *mBoxMockSet) Expect(np1 *Namespace) *mBoxMockSet {
+func (mmSet *mBoxMockSet) Expect(np1 *Profile) *mBoxMockSet {
 	if mmSet.mock.funcSet != nil {
 		mmSet.mock.t.Fatalf("BoxMock.Set mock is already set by Set")
 	}
@@ -909,7 +909,7 @@ func (mmSet *mBoxMockSet) Expect(np1 *Namespace) *mBoxMockSet {
 }
 
 // Inspect accepts an inspector function that has same arguments as the Box.Set
-func (mmSet *mBoxMockSet) Inspect(f func(np1 *Namespace)) *mBoxMockSet {
+func (mmSet *mBoxMockSet) Inspect(f func(np1 *Profile)) *mBoxMockSet {
 	if mmSet.mock.inspectFuncSet != nil {
 		mmSet.mock.t.Fatalf("Inspect function is already set for BoxMock.Set")
 	}
@@ -933,7 +933,7 @@ func (mmSet *mBoxMockSet) Return(err error) *BoxMock {
 }
 
 // Set uses given function f to mock the Box.Set method
-func (mmSet *mBoxMockSet) Set(f func(np1 *Namespace) (err error)) *BoxMock {
+func (mmSet *mBoxMockSet) Set(f func(np1 *Profile) (err error)) *BoxMock {
 	if mmSet.defaultExpectation != nil {
 		mmSet.mock.t.Fatalf("Default expectation is already set for the Box.Set method")
 	}
@@ -948,7 +948,7 @@ func (mmSet *mBoxMockSet) Set(f func(np1 *Namespace) (err error)) *BoxMock {
 
 // When sets expectation for the Box.Set which will trigger the result defined by the following
 // Then helper
-func (mmSet *mBoxMockSet) When(np1 *Namespace) *BoxMockSetExpectation {
+func (mmSet *mBoxMockSet) When(np1 *Profile) *BoxMockSetExpectation {
 	if mmSet.mock.funcSet != nil {
 		mmSet.mock.t.Fatalf("BoxMock.Set mock is already set by Set")
 	}
@@ -968,7 +968,7 @@ func (e *BoxMockSetExpectation) Then(err error) *BoxMock {
 }
 
 // Set implements Box
-func (mmSet *BoxMock) Set(np1 *Namespace) (err error) {
+func (mmSet *BoxMock) Set(np1 *Profile) (err error) {
 	mm_atomic.AddUint64(&mmSet.beforeSetCounter, 1)
 	defer mm_atomic.AddUint64(&mmSet.afterSetCounter, 1)
 

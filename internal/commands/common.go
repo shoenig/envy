@@ -18,8 +18,8 @@ import (
 )
 
 var (
-	argRe       = regexp.MustCompile(`^(?P<key>\w+)=(?P<secret>.+)$`)
-	namespaceRe = regexp.MustCompile(`^[-:/\w]+$`)
+	argRe     = regexp.MustCompile(`^(?P<key>\w+)=(?P<secret>.+)$`)
+	profileRe = regexp.MustCompile(`^[-:/\w]+$`)
 )
 
 const (
@@ -53,16 +53,16 @@ func invoke(args []string, tool *setup.Tool) babycli.Code {
 	return r.Run()
 }
 
-func checkName(namespace string) error {
-	if !namespaceRe.MatchString(namespace) {
-		return errors.New("namespace uses non-word characters")
+func checkName(profile string) error {
+	if !profileRe.MatchString(profile) {
+		return errors.New("name uses non-word characters")
 	}
 	return nil
 }
 
 type Extractor interface {
-	PreProcess(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error)
-	Namespace(vars *set.HashSet[*conceal.Text, int]) (*safe.Namespace, error)
+	Process(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error)
+	Profile(vars *set.HashSet[*conceal.Text, int]) (*safe.Profile, error)
 }
 
 type extractor struct {
@@ -75,14 +75,14 @@ func newExtractor(ring keyring.Ring) Extractor {
 	}
 }
 
-// PreProcess returns
-// - the namespace
+// Process returns
+// - the profile
 // - the set of keys to be removed
 // - the set of key/values to be added
 // - any error
-func (e *extractor) PreProcess(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error) {
+func (e *extractor) Process(args []string) (string, *set.Set[string], *set.HashSet[*conceal.Text, int], error) {
 	if len(args) < 2 {
-		return "", nil, nil, errors.New("requires at least 2 arguments (namespace, <key,...>)")
+		return "", nil, nil, errors.New("requires at least 2 arguments (profile, <key,...>)")
 	}
 	ns := args[0]
 	rm := set.New[string](4)
@@ -101,12 +101,12 @@ func (e *extractor) PreProcess(args []string) (string, *set.Set[string], *set.Ha
 	return ns, rm, add, nil
 }
 
-func (e *extractor) Namespace(vars *set.HashSet[*conceal.Text, int]) (*safe.Namespace, error) {
+func (e *extractor) Profile(vars *set.HashSet[*conceal.Text, int]) (*safe.Profile, error) {
 	content, err := e.process(vars.Slice())
 	if err != nil {
 		return nil, err
 	}
-	return &safe.Namespace{
+	return &safe.Profile{
 		Name:    "",
 		Content: content,
 	}, nil

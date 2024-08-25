@@ -42,10 +42,10 @@ func Path(dbFile string) (string, error) {
 //
 //go:generate go run github.com/gojuno/minimock/v3/cmd/minimock@v3.0.10 -g -i Box -s _mock.go
 type Box interface {
-	Set(*Namespace) error
+	Set(*Profile) error
 	Delete(string, *set.Set[string]) error
 	Purge(string) error
-	Get(string) (*Namespace, error)
+	Get(string) (*Profile, error)
 	List() ([]string, error)
 }
 
@@ -100,18 +100,18 @@ func (b *box) close(openErr error) {
 	b.database = nil
 }
 
-func bucket(create bool, tx *bbolt.Tx, namespace string) (*bbolt.Bucket, error) {
+func bucket(create bool, tx *bbolt.Tx, profile string) (*bbolt.Bucket, error) {
 	if create {
-		return tx.CreateBucketIfNotExists([]byte(namespace))
+		return tx.CreateBucketIfNotExists([]byte(profile))
 	}
-	if bkt := tx.Bucket([]byte(namespace)); bkt != nil {
+	if bkt := tx.Bucket([]byte(profile)); bkt != nil {
 		return bkt, nil
 	}
-	return nil, errors.Errorf("namespace %q does not exist", namespace)
+	return nil, errors.Errorf("profile %q does not exist", profile)
 }
 
-func put(bkt *bbolt.Bucket, ns *Namespace) error {
-	for k, v := range ns.Content {
+func put(bkt *bbolt.Bucket, pr *Profile) error {
+	for k, v := range pr.Content {
 		if err := bkt.Put([]byte(k), []byte(v)); err != nil {
 			return err
 		}
@@ -119,35 +119,35 @@ func put(bkt *bbolt.Bucket, ns *Namespace) error {
 	return nil
 }
 
-// Purge will delete the namespace, including any existing content.
-func (b *box) Purge(namespace string) error {
+// Purge will delete the profile, including any existing content.
+func (b *box) Purge(profile string) error {
 	defer b.close(b.open())
 
 	return b.database.Update(func(tx *bbolt.Tx) error {
-		return tx.DeleteBucket([]byte(namespace))
+		return tx.DeleteBucket([]byte(profile))
 	})
 }
 
 // Set will amend the content of ns. Any overlapping pre-existing values will be
 // overwritten.
-func (b *box) Set(ns *Namespace) error {
+func (b *box) Set(pr *Profile) error {
 	defer b.close(b.open())
 
 	return b.database.Update(func(tx *bbolt.Tx) error {
-		bkt, err := bucket(true, tx, ns.Name)
+		bkt, err := bucket(true, tx, pr.Name)
 		if err != nil {
 			return err
 		}
-		return put(bkt, ns)
+		return put(bkt, pr)
 	})
 }
 
-// Delete will remove keys from namespace.
-func (b *box) Delete(namespace string, keys *set.Set[string]) error {
+// Delete will remove keys from profile.
+func (b *box) Delete(profile string, keys *set.Set[string]) error {
 	defer b.close(b.open())
 
 	return b.database.Update(func(tx *bbolt.Tx) error {
-		bkt, err := bucket(true, tx, namespace)
+		bkt, err := bucket(true, tx, profile)
 		if err != nil {
 			return err
 		}
@@ -161,13 +161,13 @@ func (b *box) Delete(namespace string, keys *set.Set[string]) error {
 	})
 }
 
-// Get will return the contents of namespace.
-func (b *box) Get(namespace string) (*Namespace, error) {
+// Get will return the contents of profile.
+func (b *box) Get(profile string) (*Profile, error) {
 	defer b.close(b.open())
 
 	content := make(map[string]Encrypted)
 	if err := b.database.View(func(tx *bbolt.Tx) error {
-		bkt, err := bucket(false, tx, namespace)
+		bkt, err := bucket(false, tx, profile)
 		if err != nil {
 			return err
 		}
@@ -184,24 +184,24 @@ func (b *box) Get(namespace string) (*Namespace, error) {
 		return nil, err
 	}
 
-	return &Namespace{
-		Name:    namespace,
+	return &Profile{
+		Name:    profile,
 		Content: content,
 	}, nil
 }
 
-// List will return a list of namespaces that have been created.
+// List will return a list of profile that have been created.
 func (b *box) List() ([]string, error) {
 	defer b.close(b.open())
 
-	var namespaces []string
+	var profiles []string
 	if err := b.database.View(func(tx *bbolt.Tx) error {
 		return tx.ForEach(func(ns []byte, _ *bbolt.Bucket) error {
-			namespaces = append(namespaces, string(ns))
+			profiles = append(profiles, string(ns))
 			return nil
 		})
 	}); err != nil {
 		return nil, err
 	}
-	return namespaces, nil
+	return profiles, nil
 }

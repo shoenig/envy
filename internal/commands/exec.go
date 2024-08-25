@@ -57,8 +57,8 @@ func newExecCmd(tool *setup.Tool) *babycli.Component {
 		},
 	}
 }
-func env(tool *setup.Tool, ns *safe.Namespace, environment []string) []string {
-	for key, value := range ns.Content {
+func env(tool *setup.Tool, pr *safe.Profile, environment []string) []string {
+	for key, value := range pr.Content {
 		secret := tool.Ring.Decrypt(value).Unveil()
 		environment = append(environment, fmt.Sprintf(
 			"%s=%s", key, secret,
@@ -74,13 +74,13 @@ func envContext(insulate bool) []string {
 	return os.Environ()
 }
 
-func newCmd(tool *setup.Tool, ns *safe.Namespace, insulate bool, argVars []string, command string, args []string) *exec.Cmd {
+func newCmd(tool *setup.Tool, ns *safe.Profile, insulate bool, argVars []string, command string, args []string) *exec.Cmd {
 	ctx := context.Background()
 	cmd := exec.CommandContext(ctx, command, args...)
 
 	// Environment variables are injected in the following order:
 	// 1. OS variables if insulate is false
-	// 2. envy namespace vars
+	// 2. envy profile vars
 	// 3. Variables in input args
 	cmd.Env = append(env(tool, ns, envContext(insulate)), argVars...)
 	cmd.Stdout = os.Stdout

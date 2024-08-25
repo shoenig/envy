@@ -43,7 +43,7 @@ func TestExecCmd_ok(t *testing.T) {
 		Box:    box,
 	}
 
-	box.GetMock.Expect("myNS").Return(&safe.Namespace{
+	box.GetMock.Expect("myNS").Return(&safe.Profile{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
 			"a": {0x1},
@@ -100,7 +100,7 @@ func TestExecCmd_bad_command(t *testing.T) {
 		Box:    box,
 	}
 
-	box.GetMock.Expect("myNS").Return(&safe.Namespace{
+	box.GetMock.Expect("myNS").Return(&safe.Profile{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
 			"a": {0x1},

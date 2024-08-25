@@ -79,12 +79,12 @@ func TestPurgeCmd_bad_profile(t *testing.T) {
 		Box:    box,
 	}
 
-	// namespace must be valid
+	// profile must be valid
 	rc := invoke([]string{"purge", "foo=bar"}, tool)
 
 	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: unable to purge profile: namespace uses non-word characters\n", b.String())
+	must.Eq(t, "envy: unable to purge profile: name uses non-word characters\n", b.String())
 }
 
 func TestPurgeCmd_two_arg(t *testing.T) {

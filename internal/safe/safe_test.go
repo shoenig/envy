@@ -45,10 +45,10 @@ func TestSafe_Set(t *testing.T) {
 	b := New(newFile(t))
 
 	_, err := b.Get("does-not-exist")
-	must.EqError(t, err, "namespace \"does-not-exist\" does not exist")
+	must.EqError(t, err, "profile \"does-not-exist\" does not exist")
 
 	// set ns1 first time
-	err = b.Set(&Namespace{
+	err = b.Set(&Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -58,7 +58,7 @@ func TestSafe_Set(t *testing.T) {
 	must.NoError(t, err)
 
 	// set ns2 first time
-	err = b.Set(&Namespace{
+	err = b.Set(&Profile{
 		Name: "ns2",
 		Content: map[string]Encrypted{
 			"keyA": []byte("foo"),
@@ -69,7 +69,7 @@ func TestSafe_Set(t *testing.T) {
 
 	ns1, err := b.Get("ns1")
 	must.NoError(t, err)
-	must.Eq(t, &Namespace{
+	must.Eq(t, &Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -79,7 +79,7 @@ func TestSafe_Set(t *testing.T) {
 
 	ns2, err := b.Get("ns2")
 	must.NoError(t, err)
-	must.Eq(t, &Namespace{
+	must.Eq(t, &Profile{
 		Name: "ns2",
 		Content: map[string]Encrypted{
 			"keyA": []byte("foo"),
@@ -88,7 +88,7 @@ func TestSafe_Set(t *testing.T) {
 	}, ns2)
 
 	// set ns2 second time
-	err = b.Set(&Namespace{
+	err = b.Set(&Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -100,7 +100,7 @@ func TestSafe_Set(t *testing.T) {
 
 	ns1, err = b.Get("ns1")
 	must.NoError(t, err)
-	must.Eq(t, &Namespace{
+	must.Eq(t, &Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -114,7 +114,7 @@ func TestSafe_Purge(t *testing.T) {
 	b := New(newFile(t))
 
 	// set ns1
-	err := b.Set(&Namespace{
+	err := b.Set(&Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -126,7 +126,7 @@ func TestSafe_Purge(t *testing.T) {
 	// ensure ns1 is set
 	ns1, err := b.Get("ns1")
 	must.NoError(t, err)
-	must.Eq(t, &Namespace{
+	must.Eq(t, &Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -140,14 +140,14 @@ func TestSafe_Purge(t *testing.T) {
 
 	// ensure ns1 is not set anymore
 	_, err = b.Get("ns1")
-	must.EqError(t, err, `namespace "ns1" does not exist`)
+	must.EqError(t, err, `profile "ns1" does not exist`)
 }
 
 func TestSafe_Update(t *testing.T) {
 	b := New(newFile(t))
 
 	// set ns1
-	err := b.Set(&Namespace{
+	err := b.Set(&Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -159,7 +159,7 @@ func TestSafe_Update(t *testing.T) {
 	// ensure ns1 is set
 	ns1, err := b.Get("ns1")
 	must.NoError(t, err)
-	must.Eq(t, &Namespace{
+	must.Eq(t, &Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),
@@ -168,7 +168,7 @@ func TestSafe_Update(t *testing.T) {
 	}, ns1)
 
 	// update ns1
-	err = b.Set(&Namespace{
+	err = b.Set(&Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key2": []byte("value2"),
@@ -180,7 +180,7 @@ func TestSafe_Update(t *testing.T) {
 	// ensure ns1 is joined union
 	ns1, err = b.Get("ns1")
 	must.NoError(t, err)
-	must.Eq(t, &Namespace{
+	must.Eq(t, &Profile{
 		Name: "ns1",
 		Content: map[string]Encrypted{
 			"key1": []byte("value1"),

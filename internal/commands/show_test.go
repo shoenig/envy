@@ -28,7 +28,7 @@ func TestShowCmd_Execute(t *testing.T) {
 		Box:    box,
 	}
 
-	box.GetMock.Expect("myNS").Return(&safe.Namespace{
+	box.GetMock.Expect("myNS").Return(&safe.Profile{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
 			"foo": {1, 1, 1},
@@ -58,7 +58,7 @@ func TestShowCmd_Execute_unveil(t *testing.T) {
 		Box:    box,
 	}
 
-	box.GetMock.Expect("myNS").Return(&safe.Namespace{
+	box.GetMock.Expect("myNS").Return(&safe.Profile{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
 			"foo": {1, 1, 1},

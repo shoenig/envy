@@ -26,7 +26,7 @@ func TestSetCmd_ok(t *testing.T) {
 	ring.EncryptMock.When(conceal.New("abc123")).Then(safe.Encrypted{8, 8, 8, 8, 8, 8})
 	ring.EncryptMock.When(conceal.New("1234")).Then(safe.Encrypted{9, 9, 9, 9})
 
-	box.SetMock.Expect(&safe.Namespace{
+	box.SetMock.Expect(&safe.Profile{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
 			"foo": {8, 8, 8, 8, 8, 8},
@@ -56,7 +56,7 @@ func TestSetCmd_io_error(t *testing.T) {
 
 	a, b, w := newWriter()
 
-	box.SetMock.Expect(&safe.Namespace{
+	box.SetMock.Expect(&safe.Profile{
 		Name: "myNS",
 		Content: map[string]safe.Encrypted{
 			"foo": {8, 8, 8, 8, 8, 8},
@@ -95,12 +95,12 @@ func TestSetCmd_bad_ns(t *testing.T) {
 		Box:    box,
 	}
 
-	// e.g. forgot to specify namespace
+	// e.g. forgot to specify profile
 	rc := invoke([]string{"set", "foo=abc123", "bar=1234"}, tool)
 
 	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: could not set namespace: namespace uses non-word characters\n", b.String())
+	must.Eq(t, "envy: could not set profile: name uses non-word characters\n", b.String())
 }
 
 func TestSetCmd_no_vars(t *testing.T) {
@@ -118,10 +118,10 @@ func TestSetCmd_no_vars(t *testing.T) {
 		Box:    box,
 	}
 
-	// e.g. reminder to use purge to remove namespace
+	// e.g. reminder to use purge to remove profile
 	rc := invoke([]string{"set", "ns1"}, tool)
 
 	must.One(t, rc)
 	must.Eq(t, "", a.String())
-	must.Eq(t, "envy: unable to parse args: requires at least 2 arguments (namespace, <key,...>)\n", b.String())
+	must.Eq(t, "envy: unable to parse args: requires at least 2 arguments (profile, <key,...>)\n", b.String())
 }
