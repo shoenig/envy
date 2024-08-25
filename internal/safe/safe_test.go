@@ -1,3 +1,6 @@
+// Copyright (c) Seth Hoenig
+// SPDX-License-Identifier: MIT
+
 package safe
 
 import (
