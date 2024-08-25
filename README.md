@@ -43,14 +43,29 @@ $ go install github.com/shoenig/envy@latest
 #### usage overview
 
 ```bash
-Subcommands for envy:
-  exec   Run a command with environment variables from namespace.
-    use `-insulate` to exclude external environment variables
-  list   List available namespaces.
-  purge  Remove a namespace and all of its environment variables.
-  set    Set/Update/Remove environment variable(s) for namespace.
-  show   Show environment variable(s) in namespace.
-    use `-decrypt` to include decrypted values
+NAME:
+  envy - wrangle environment varibles
+
+USAGE:
+  envy  [global options] [command [command options]] [arguments...]
+
+VERSION:
+  v0
+
+DESCRIPTION:
+  The envy is a command line tool for managing profiles of
+  environment variables.  Values are stored securely using
+  encryption with keys protected by your desktop keychain.
+
+COMMANDS:
+  list  - list environment profiles
+  set   - set environment variable(s) in a profile
+  purge - purge an environment profile
+  show  - show values in an environment variable profile
+  exec  - run a command using environment variables from profile
+
+GLOBALS:
+--help/-h   boolean - print help message
 ```
 
 #### set a namespace
