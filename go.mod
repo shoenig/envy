@@ -10,7 +10,7 @@ require (
 	github.com/shoenig/go-conceal v0.5.4
 	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
-	github.com/shoenig/test v1.9.1
+	github.com/shoenig/test v1.11.0
 	github.com/zalando/go-keyring v0.2.5
 	go.etcd.io/bbolt v1.3.11
 	noxide.lol/go/babycli v0.1.4
