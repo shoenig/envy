@@ -38,13 +38,10 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-          cache-dependency-path: '**/go.sum'
-      - name: Run Go Vet
-        run: |
-          make vet
       - name: Run Go Test
         run: |
-          make test
+          just init tidy lint tests

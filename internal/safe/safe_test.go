@@ -4,12 +4,11 @@
 package safe
 
 import (
-	"os"
 	"runtime"
 	"testing"
 
-	"github.com/shoenig/ignore"
 	"github.com/shoenig/test/must"
+	"github.com/shoenig/test/util"
 )
 
 var _ Box = (*box)(nil)
@@ -34,15 +33,8 @@ func TestSafe_Path(t *testing.T) {
 	})
 }
 
-func newFile(t *testing.T) string {
-	f, err := os.CreateTemp("", "-envoy.safe")
-	must.NoError(t, err)
-	defer ignore.Close(f)
-	return f.Name()
-}
-
 func TestSafe_Set(t *testing.T) {
-	b := New(newFile(t))
+	b := New(util.TempFile(t))
 
 	_, err := b.Get("does-not-exist")
 	must.EqError(t, err, "profile \"does-not-exist\" does not exist")
@@ -111,7 +103,7 @@ func TestSafe_Set(t *testing.T) {
 }
 
 func TestSafe_Purge(t *testing.T) {
-	b := New(newFile(t))
+	b := New(util.TempFile(t))
 
 	// set ns1
 	err := b.Set(&Profile{
@@ -144,7 +136,7 @@ func TestSafe_Purge(t *testing.T) {
 }
 
 func TestSafe_Update(t *testing.T) {
-	b := New(newFile(t))
+	b := New(util.TempFile(t))
 
 	// set ns1
 	err := b.Set(&Profile{
