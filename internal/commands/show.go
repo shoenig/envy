@@ -6,8 +6,8 @@ package commands
 import (
 	"sort"
 
+	"cattlecloud.net/go/babycli"
 	"github.com/shoenig/envy/internal/setup"
-	"noxide.lol/go/babycli"
 )
 
 func newShowCmd(tool *setup.Tool) *babycli.Component {

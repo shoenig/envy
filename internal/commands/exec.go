@@ -10,9 +10,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"cattlecloud.net/go/babycli"
 	"github.com/shoenig/envy/internal/safe"
 	"github.com/shoenig/envy/internal/setup"
-	"noxide.lol/go/babycli"
 )
 
 func newExecCmd(tool *setup.Tool) *babycli.Component {

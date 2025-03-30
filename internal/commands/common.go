@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"cattlecloud.net/go/babycli"
 	"github.com/hashicorp/go-set/v3"
 	"github.com/pkg/errors"
 	"github.com/shoenig/envy/internal/keyring"
@@ -14,7 +15,6 @@ import (
 	"github.com/shoenig/envy/internal/setup"
 	"github.com/shoenig/go-conceal"
 	"github.com/shoenig/regexplus"
-	"noxide.lol/go/babycli"
 )
 
 var (
