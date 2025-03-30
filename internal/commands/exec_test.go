@@ -189,16 +189,14 @@ func Test_splitArgs(t *testing.T) {
 		},
 		"cmd with equal in path is allowed": {
 			setup: func() {
-				tempDir, err := os.MkdirTemp("", "envy")
-				must.NoError(t, err)
+				tempDir := t.TempDir()
 				t.Cleanup(func() { os.RemoveAll(tempDir) })
 
 				f, err := os.OpenFile(filepath.Join(tempDir, "my=cmd"), os.O_CREATE|os.O_EXCL, 0700)
 				must.NoError(t, err)
 				must.NoError(t, f.Close())
 
-				err = os.Setenv("PATH", tempDir)
-				must.NoError(t, err)
+				t.Setenv("PATH", tempDir)
 			},
 			args: args{
 				flagArgs: []string{"FOO=BAR", "my=cmd", "ZIP=ZAP"},
