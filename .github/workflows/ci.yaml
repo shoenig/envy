@@ -23,9 +23,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64.8
+          version: v2.0.2
           args: --config .github/workflows/scripts/golangci.yaml
   run-tests:
     timeout-minutes: 5

@@ -1,38 +1,49 @@
-run:
-  timeout: 5m
+version: "2"
 linters:
   enable:
-   - asasalint
-   - asciicheck
-   - bidichk
-   - bodyclose
-   - dogsled
-   - dupword
-   - durationcheck
-   - errcheck
-   - errname
-   - errorlint
-   - exhaustive
-   - gocritic
-   - gofmt
-   - gosimple
-   - govet
-   - ineffassign
-   - makezero
-   - misspell
-   - musttag
-   - nilnil
-   - noctx
-   - perfsprint
-   - prealloc
-   - predeclared
-   - reassign
-   - revive
-   - rowserrcheck
-   - staticcheck
-   - sqlclosecheck
-   - tagalign
-   - unused
-   - usetesting
-   - whitespace
-
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - dogsled
+    - dupword
+    - durationcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - gocritic
+    - makezero
+    - misspell
+    - musttag
+    - nilnil
+    - noctx
+    - perfsprint
+    - prealloc
+    - predeclared
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - tagalign
+    - usetesting
+    - whitespace
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
