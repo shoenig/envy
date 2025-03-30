@@ -4,8 +4,8 @@
 package commands
 
 import (
+	"cattlecloud.net/go/babycli"
 	"github.com/shoenig/envy/internal/setup"
-	"noxide.lol/go/babycli"
 )
 
 func newSetCmd(tool *setup.Tool) *babycli.Component {
