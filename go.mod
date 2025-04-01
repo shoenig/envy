@@ -9,11 +9,10 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/shoenig/go-conceal v0.5.4
-	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
 	github.com/shoenig/test v1.12.0
 	github.com/zalando/go-keyring v0.2.6
-	go.etcd.io/bbolt v1.3.11
+	go.etcd.io/bbolt v1.4.0
 )
 
 require (
@@ -24,5 +23,5 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 )
