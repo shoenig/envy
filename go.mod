@@ -5,13 +5,12 @@ go 1.24
 require (
 	cattlecloud.net/go/babycli v0.2.0
 	github.com/gojuno/minimock/v3 v3.4.5
-	github.com/hashicorp/go-set/v3 v3.0.0
+	github.com/hashicorp/go-set/v3 v3.0.1
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/shoenig/go-conceal v0.5.4
-	github.com/shoenig/ignore v0.4.0
 	github.com/shoenig/regexplus v0.3.0
-	github.com/shoenig/test v1.12.0
+	github.com/shoenig/test v1.12.1
 	github.com/zalando/go-keyring v0.2.6
 	go.etcd.io/bbolt v1.3.11
 )
