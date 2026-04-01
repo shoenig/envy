@@ -1,7 +1,15 @@
-version: 2
+kkversion: 2
 updates:
-  - package-ecosystem: gomod
-    directory: "/"
+  - package-ecosystem: "github-actions"
+    directories:
+      - "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "theme/dependencies"
+  - package-ecosystem: "gomod"
+    directories:
+      - "/"
     schedule:
       interval: "monthly"
     labels:
