@@ -38,3 +38,6 @@ init:
 @sysinfo:
     echo "{{os()/arch()}} {{num_cpus()}}c"
 
+# Create a release
+[group('release')]
+    envy exec gh-release goreleaser release --clean
