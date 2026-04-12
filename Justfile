@@ -41,5 +41,5 @@ init:
 # create a release
 [group('release')]
 release:
-    envy exec gh-release goreleaser release --clean
+    envy exec gh-release goreleaser release --clean --config {{scripts}}/goreleaser.yaml
 
