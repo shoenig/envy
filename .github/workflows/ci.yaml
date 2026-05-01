@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v6
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@v4
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
