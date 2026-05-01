@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-set/v3 v3.0.1
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
-	github.com/shoenig/go-conceal v0.5.4
+	github.com/shoenig/go-conceal v0.5.6
 	github.com/shoenig/regexplus v0.3.0
 	github.com/shoenig/test v1.13.2
 	github.com/zalando/go-keyring v0.2.8
