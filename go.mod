@@ -12,7 +12,7 @@ require (
 	github.com/shoenig/regexplus v0.3.0
 	github.com/shoenig/test v1.13.2
 	github.com/zalando/go-keyring v0.2.8
-	go.etcd.io/bbolt v1.4.3
+	go.etcd.io/bbolt v1.5.0
 )
 
 require (
@@ -22,5 +22,5 @@ require (
 	github.com/godbus/dbus/v5 v5.2.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 )
